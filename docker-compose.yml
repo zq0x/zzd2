@@ -1,0 +1,80 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: container_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+  
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "7861:7861"
+    container_name: container_backend
+    environment:
+      - REDIS_PORT=6379
+      - BACKEND_IP=0.0.0.0
+      - BACKEND_PORT=7861
+    volumes:
+      - ./backend:/usr/src/app
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../logs:/usr/src/app/logs
+      - /models:/models
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    restart: unless-stopped
+
+  vllm:
+    build:
+      context: ./vllm
+    image: xoo4foo/zvllm18:latest
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ports:
+      - "1370:1370"
+    container_name: container_vllm
+    volumes:
+      - ../logs:/var/log
+      - /models:/models
+    shm_size: 8gb
+    environment:
+      - NCCL_DEBUG=INFO
+      - VLLM_PORT=1370
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "7860:7860"
+    container_name: container_frontend
+    depends_on:
+      - backend
+      - vllm
+    environment:
+      - FRONTEND_IP=0.0.0.0
+      - FRONTEND_PORT=7860
+      - BACKEND_PORT=7861
+      - VLLM_PORT=1370
+    volumes:
+      - ./frontend:/usr/src/app
+      - ../logs:/usr/src/app/logs
+      - /models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    restart: unless-stopped
+

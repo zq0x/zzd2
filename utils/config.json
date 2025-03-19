@@ -1,0 +1,10 @@
+{
+    "frontend": {
+      "default_input_1": "Hello",
+      "default_input_2": 123,
+      "default_input_3": true
+    },
+    "backend": {
+      "backend_url": "http://backend:8000/process"
+    }
+  }
