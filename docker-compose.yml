@@ -16,6 +16,7 @@ services:
       - REDIS_PORT=6379
       - BACKEND_IP=0.0.0.0
       - BACKEND_PORT=7861
+      - VLLM_PORT=1370
     volumes:
       - ./backend:/usr/src/app
       - /var/run/docker.sock:/var/run/docker.sock

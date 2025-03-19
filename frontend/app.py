@@ -1270,7 +1270,7 @@ def create_app():
                 with gr.Column(scale=4):
                     with gr.Accordion(("vLLM Parameters"), open=True):
                         vllm_input_components = VllmInputComponents(
-                            model_id=gr.Textbox(placeholder=f'{selected_model_id}', value="asd", label="model_id", info="Hugging Face Model ID"),
+                            model_id=gr.Textbox(placeholder=f'{selected_model_id}', value=f'{selected_model_id}', label="model_id", info="Hugging Face Model ID"),
                             max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                             tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                             gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
