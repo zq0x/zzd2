@@ -151,6 +151,7 @@ docker_container_list = []
 current_models_data = []
 db_gpu_data = []
 db_gpu_data_len = ''
+GLOBAL_SELECTED_MODEL_ID = ''
 
 try:
     r = redis.Redis(host="redis", port=6379, db=0)
@@ -172,8 +173,8 @@ def load_log_file(req_container_name):
     try:
         with open(f'{LOG_PATH}/logfile_{req_container_name}.log', "r", encoding="utf-8") as file:
             lines = file.readlines()
-            last_20_lines = lines[-20:]  # Get the last 20 lines
-            reversed_lines = last_20_lines[::-1]  # Reverse them
+            last_20_lines = lines[-20:]
+            reversed_lines = last_20_lines[::-1]
             return ''.join(reversed_lines)
     except Exception as e:
         return f'{e}'
@@ -356,8 +357,11 @@ def calculate_model_size(json_info): # to fix
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
         return 0
 
+
 def get_info(selected_id):    
     global current_models_data    
+    global GLOBAL_SELECTED_MODEL_ID  
+    GLOBAL_SELECTED_MODEL_ID = selected_id
     res_model_data = {
         "search_data" : "",
         "model_id" : selected_id,
@@ -921,15 +925,13 @@ def toggle_vllm_create_engine_arguments(vllm_list):
         gr.Button(visible=False)
     )
 
-def load_vllm_running(req_model_id,*params):
-    
-    
-    
+def load_vllm_running(*params):
     
     try:
-        print(f' >>> load_vllm_running req_model_id: {req_model_id} ')
+        global GLOBAL_SELECTED_MODEL_ID
+        print(f' >>> load_vllm_running GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         print(f' >>> load_vllm_running got params: {params} ')
-        logging.exception(f'[load_vllm_running] >> req_model_id: {req_model_id} ')
+        logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         logging.exception(f'[load_vllm_running] >> got params: {params} ')
                 
         req_params = VllmInputValues(*params)
@@ -937,7 +939,7 @@ def load_vllm_running(req_model_id,*params):
 
         response = requests.post(BACKEND_URL, json={
             "req_method":"test",
-            "model_id":req_params.model_id,
+            "model_id":GLOBAL_SELECTED_MODEL_ID,
             "max_model_len":req_params.max_model_len,
             "tensor_parallel_size":req_params.tensor_parallel_size,
             "gpu_memory_utilization":req_params.gpu_memory_utilization
@@ -1111,21 +1113,6 @@ def parallel_download(selected_model_size, model_dropdown):
 
 
 
-def slowly_reverse(word, progress=gr.Progress()):
-    progress(0, desc="Starting")
-    time.sleep(10)
-    progress(0.05, desc="Initializing...")
-
-    new_string = ""
-    total_letters = len(word)
-    for i, letter in enumerate(word):
-        time.sleep(5.25)
-        new_string = letter + new_string
-        progress_percent = (i + 1) / total_letters
-        progress(progress_percent, desc=f"Reversing... ({int(progress_percent * 100)}%)")
-        yield f"Progress: {int(progress_percent * 100)}%\nReversed so far: {new_string}"
-
-    yield f"Progress: 100%\nReversed word: {new_string}"
 
 def create_app():
     with gr.Blocks() as app:
@@ -1228,7 +1215,7 @@ def create_app():
                 
         with gr.Row(visible=False) as vllm_create_engine_arguments_row:
             with gr.Column(scale=4):
-                with gr.Accordion(("Create Parameters"), open=True):
+                with gr.Accordion(("Create Parameters"), open=False):
                     input_components = InputComponents(
                         param0=gr.Textbox(placeholder="pasdsssda", value="genau", label="Textbox", info="yes a textbox"),
                         param1=gr.Slider(2, 20, value=1, label="Count", info="Choose between 2 and 20"),
@@ -1424,17 +1411,7 @@ def create_app():
         prompt_btn = gr.Button("Submit", visible=True)
         
         
-        
-                
-        with gr.Accordion("Slowly Reverse a Word", open=False):
-            reverse_input = gr.Textbox(label="Enter a word to reverse", placeholder="Type here...")
-            reverse_output = gr.Textbox(label="Progress and Reversed Word")
-            reverse_btn = gr.Button("Reverse Slowly")
-            reverse_btn.click(
-                fn=slowly_reverse,
-                inputs=reverse_input,
-                outputs=reverse_output
-            )
+
         # load_btn.click(lambda model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in: vllm_api("load", model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in), inputs=[model_dropdown, selected_model_pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in], outputs=prompt_out)
             
         # prompt_btn.click(lambda model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in: vllm_api("generate", model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in), inputs=[model_dropdown, selected_model_pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in], outputs=prompt_out)
