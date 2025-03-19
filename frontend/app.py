@@ -937,15 +937,14 @@ def load_vllm_running(*params):
             "tensor_parallel_size":req_params.tensor_parallel_size,
             "gpu_memory_utilization":req_params.gpu_memory_utilization
         }, timeout=REQUEST_TIMEOUT)
-        logging.exception(f'[load_vllm_running]>>>>>> response: {response["result_data"]}')
-        print(f'>>>>>>response {response}')
+        res_json = response.json()
         if response.status_code == 200:
             response_json = response.json()
             if response_json["result_status"] != 200:
-                logging.exception(f'[load_vllm_running] Response Error: {response_json["result_data"]}')
-                return f'ERROR {response_json["result_data"]}'
+                logging.exception(f'[load_vllm_running] Response Error: {res_json["result_data"]}')
+                return f'ERROR {res_json["result_data"]}'
                 
-            return f'{response_json["result_data"]}'
+            return f'{res_json["result_data"]}'
         else:
             logging.exception(f'[load_vllm_running] Request Error: {response}')
             return f'Request Error: {response}'
