@@ -598,7 +598,7 @@ async def docker_rest(request: Request):
             print(f'got test!')
             print("req_data")
             print(req_data)
-            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] test >>>>>>>>>>> {req_data}')
+            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] test >>>>>>>>>>>')
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] test >>>>>>>>>>> req_data["max_model_len"] {req_data["max_model_len"]}')
             
             print("trying request vllm")
