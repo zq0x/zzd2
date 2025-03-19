@@ -829,6 +829,7 @@ def refresh_container():
 
 @dataclass
 class VllmInputComponents:
+    model_id: gr.Textbox
     max_model_len: gr.Slider
     tensor_parallel_size: gr.Number
     gpu_memory_utilization: gr.Slider
@@ -838,6 +839,7 @@ class VllmInputComponents:
 
 @dataclass
 class VllmInputValues:    
+    model_id: str
     max_model_len: int
     tensor_parallel_size: int
     gpu_memory_utilization: int
@@ -933,6 +935,7 @@ def load_vllm_running(*params):
 
         response = requests.post(BACKEND_URL, json={
             "req_method":"test",
+            "model_id":"test",
             "max_model_len":req_params.max_model_len,
             "tensor_parallel_size":req_params.tensor_parallel_size,
             "gpu_memory_utilization":req_params.gpu_memory_utilization
@@ -1263,10 +1266,11 @@ def create_app():
             
             
             
-            with gr.Row(visible=False) as vllm_running_engine_arguments_row:
+            with gr.Row(visible=True) as vllm_running_engine_arguments_row:
                 with gr.Column(scale=4):
-                    with gr.Accordion(("vLLM Parameters"), open=False):
+                    with gr.Accordion(("vLLM Parameters"), open=True):
                         vllm_input_components = VllmInputComponents(
+                            model_id=gr.Textbox(placeholder=f'{selected_model_id}', value="asd", label="model_id", info="Hugging Face Model ID"),
                             max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                             tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                             gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")

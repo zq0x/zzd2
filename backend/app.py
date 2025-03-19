@@ -599,6 +599,34 @@ async def docker_rest(request: Request):
             print(req_data)
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] test >>>>>>>>>>> {req_data}')
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] test >>>>>>>>>>> req_data["max_model_len"] {req_data["max_model_len"]}')
+            
+            print("trying request vllm")
+            print(req_data["model_id"])
+            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] test >>>>>>>>>>> trying request vllm ...] {req_data["model_id"]}')
+            VLLM_URL = f'http://container_vllm:{os.getenv("VLLM_PORT")}/vllmt'
+            try:
+                response = requests.post(VLLM_URL, json={
+                    "req_type":"load",
+                    "max_model_len":int(req_data["max_model_len"]),
+                    "tensor_parallel_size":int(req_data["tensor_parallel_size"]),
+                    "gpu_memory_utilization":float(req_data["gpu_memory_utilization"]),
+                    "model":str(req_data["model_id"])
+                })
+                if response.status_code == 200:
+                    logging.info(f' [dockerrest]  status_code: {response.status_code}') 
+                    response_json = response.json()
+                    logging.info(f' [dockerrest]  response_json: {response_json}') 
+                    response_json["result_data"] = response_json["result_data"]
+                    return response_json["result_data"]                
+                else:
+                    logging.info(f' [dockerrest] response: {response}')
+                    return JSONResponse({"result_status": 500, "result_data": f'ERRRR'})
+            
+            except Exception as e:
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
+                return f'err {str(e)}'
+        
+        
             return JSONResponse({"result_status": 200, "result_data": f'{req_data["max_model_len"]}'})
                 
         if req_data["req_method"] == "logs":
