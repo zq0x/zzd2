@@ -132,7 +132,7 @@ vllm_supported_architectures = [
     "whisper"
 ]
 
-REQUEST_TIMEOUT = 5
+REQUEST_TIMEOUT = 50
 def wait_for_backend(backend_url, timeout=300):
     start_time = time.time()
     while time.time() - start_time < timeout:
@@ -935,7 +935,7 @@ def load_vllm_running(*params):
 
         response = requests.post(BACKEND_URL, json={
             "req_method":"test",
-            "model_id":"test",
+            "model_id":req_params.max_model_len,
             "max_model_len":req_params.max_model_len,
             "tensor_parallel_size":req_params.tensor_parallel_size,
             "gpu_memory_utilization":req_params.gpu_memory_utilization
