@@ -1212,13 +1212,12 @@ def create_app():
                     model_dropdown
                 )
 
-                btn_dl = gr.Button("DOWNLOAD", visible=False)
-                btn_parallel = gr.Button("BTN_PARALLEL", visible=True)
-                btn_parallel_two = gr.Button("BTN_PARALLEL_TWO", visible=True)
+                btn_dl = gr.Button("DOWNLOAD", visible=True)
+
 
                     
                 btn = gr.Button("input_components -> predict_with_my_model")
-                btn_vllm_running = gr.Button("vllm_input_components ->  BACKEND")
+                btn_vllm_running = gr.Button("SENDS BACKEENDS")
                 # vllm_engine_arguments_show = gr.Button("GENERATE NEW VLLM", variant="primary")
                 # vllm_engine_arguments_close = gr.Button("CANCEL")
 
@@ -1350,7 +1349,7 @@ def create_app():
         
         btn_vllm_running.click(
             load_vllm_running,
-            [model_dropdown,vllm_input_components.to_list()],
+            vllm_input_components.to_list(),
             [output]
         )
 
@@ -1750,85 +1749,9 @@ def create_app():
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
                 return f'err {str(e)}'
 
+
         
         btn_dl.click(
-            download_info, 
-            selected_model_size, 
-            download_info_output,
-            concurrency_limit=5
-        ).then(
-            lambda: gr.Timer(active=True), 
-            None, 
-            timer_dl
-        ).then(
-            lambda: gr.Timer(active=False), 
-            None, 
-            timer_dl
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            btn_interface
-        )
-
-        
-        btn_parallel_two.click(
-            download_info, 
-            selected_model_size, 
-            download_info_output,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.Timer(active=True), 
-            None, 
-            timer_dl
-        ).then(
-            lambda: gr.Timer(active=False), 
-            None, 
-            timer_dl
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            btn_interface
-        )
-        
-        btn_parallel_two.click(
-            download_from_hf_hub, 
-            model_dropdown, 
-            output,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.Timer(active=True), 
-            None, 
-            timer_dl
-        ).then(
-            lambda: gr.Timer(active=False), 
-            None, 
-            timer_dl
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            btn_interface
-        )
-
-        # btn_parallel.click(
-        #     lambda: gr.Timer(active=True), 
-        #     None, 
-        #     timer_dl
-        # ).then(
-        #     lambda size, name: (download_info(size), download_from_hf_hub(name)),
-        #     [selected_model_size, model_dropdown],
-        #     [download_info_output, output],
-        #     concurrency_limit=200
-        # ).then(
-        #     lambda: gr.Timer(active=False), 
-        #     None, 
-        #     timer_dl
-        # ).then(
-        #     lambda: gr.update(visible=True), 
-        #     None, 
-        #     btn_interface
-        # )
-        
-        btn_parallel.click(
             lambda: gr.update(label="Starting download ...", visible=True), 
             None, 
             output,
@@ -1860,7 +1783,7 @@ def create_app():
             concurrency_limit=15
         )
 
-        btn_parallel.click(
+        btn_dl.click(
             lambda: gr.update(
                 label="Starting download ...",
                 visible=True), 
