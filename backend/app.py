@@ -7,6 +7,7 @@ from docker.types import DeviceRequest
 import time
 import numpy
 import os
+import requests
 import redis.asyncio as redis
 import sys
 import torch
