@@ -921,21 +921,23 @@ def toggle_vllm_create_engine_arguments(vllm_list):
         gr.Button(visible=False)
     )
 
-def load_vllm_running(*params):
+def load_vllm_running(req_model_id,*params):
     
     
     
     
     try:
+        print(f' >>> load_vllm_running req_model_id: {req_model_id} ')
         print(f' >>> load_vllm_running got params: {params} ')
-        
+        logging.exception(f'[load_vllm_running] >> req_model_id: {req_model_id} ')
+        logging.exception(f'[load_vllm_running] >> got params: {params} ')
                 
         req_params = VllmInputValues(*params)
 
 
         response = requests.post(BACKEND_URL, json={
             "req_method":"test",
-            "model_id":req_params.max_model_len,
+            "model_id":req_params.model_id,
             "max_model_len":req_params.max_model_len,
             "tensor_parallel_size":req_params.tensor_parallel_size,
             "gpu_memory_utilization":req_params.gpu_memory_utilization
@@ -1348,7 +1350,7 @@ def create_app():
         
         btn_vllm_running.click(
             load_vllm_running,
-            vllm_input_components.to_list(),
+            [model_dropdown,vllm_input_components.to_list()],
             [output]
         )
 
