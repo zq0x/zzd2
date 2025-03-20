@@ -1214,12 +1214,8 @@ def create_app():
                     model_dropdown
                 )
 
-                btn_dl = gr.Button("DOWNLOAD", visible=True)
 
 
-                    
-                btn = gr.Button("input_components -> predict_with_my_model")
-                btn_vllm_running = gr.Button("SENDS BACKEENDS")
                 # vllm_engine_arguments_show = gr.Button("GENERATE NEW VLLM", variant="primary")
                 # vllm_engine_arguments_close = gr.Button("CANCEL")
 
@@ -1227,7 +1223,48 @@ def create_app():
         
         
                     
+
+                            
                 
+        with gr.Column(scale=4) as column_select_vllm_engine_arguments:
+            with gr.Row(visible=True):
+                vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
+
+
+                    
+            
+
+            
+            
+            
+            
+            
+            with gr.Row(visible=True) as vllm_running_engine_arguments_row:
+                with gr.Column(scale=4):
+                    with gr.Accordion(("vLLM Parameters"), open=True):
+                        vllm_input_components = VllmInputComponents(
+                            model_id=gr.Textbox(placeholder=f'{selected_model_id}', value=f'{selected_model_id}', label="model_id", info="Hugging Face Model ID"),
+                            max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
+                            tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
+                            gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
+                        )
+                with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
+                    btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
+                    btn_vllm_running = gr.Button("DEPLOY VLLM", visible=True)
+
+        
+        with gr.Row():
+            top_p = gr.Textbox(label="top_p", placeholder="0.95", value=0.95, visible=True)
+            temperature = gr.Slider(0.1, 1.0, step=0.1, label="temperature", value=0.8, visible=True)
+            max_tokens = gr.Number(label="max_tokens", value=150, visible=True)
+        
+        
+        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Query", show_label=True, visible=True)  
+        prompt_out = gr.Textbox(placeholder="Result will appear here", label="Output", show_label=True, visible=True)
+        prompt_btn = gr.Button("Submit", visible=True)
+        
+        
+                    
         with gr.Row(visible=False) as vllm_create_engine_arguments_row:
             with gr.Column(scale=4):
                 with gr.Accordion(("Create Parameters"), open=False):
@@ -1260,27 +1297,41 @@ def create_app():
             with gr.Row(visible=True):
                 vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
 
+        with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
+            vllm_running_engine_arguments_show = gr.Button("LOAD VLLM CREATEEEEEEEEUUUUHHHHHHHH", variant="primary")
+            vllm_running_engine_arguments_close = gr.Button("CANCEL")
 
-                    
-            
+         
+        btn_interface = gr.Button("Load Interface",visible=False)
+        @gr.render(inputs=[selected_model_pipeline_tag, selected_model_id], triggers=[btn_interface.click])
+        def show_split(text_pipeline, text_model):
+            if len(text_model) == 0:
+                gr.Markdown("Error pipeline_tag or model_id")
+            else:
+                selected_model_id_arr = str(text_model).split('/')
+                print(f'selected_model_id_arr {selected_model_id_arr}...')            
+                gr.Interface.from_pipeline(pipeline(text_pipeline, model=f'/models/{selected_model_id_arr[0]}/{selected_model_id_arr[1]}'))
 
-            
-            
-            
-            
-            
-            with gr.Row(visible=True) as vllm_running_engine_arguments_row:
-                with gr.Column(scale=4):
-                    with gr.Accordion(("vLLM Parameters"), open=True):
-                        vllm_input_components = VllmInputComponents(
-                            model_id=gr.Textbox(placeholder=f'{selected_model_id}', value=f'{selected_model_id}', label="model_id", info="Hugging Face Model ID"),
-                            max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
-                            tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
-                            gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
-                        )
-                with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
-                    vllm_running_engine_arguments_show = gr.Button("LOAD VLLM", variant="primary")
-                    vllm_running_engine_arguments_close = gr.Button("CANCEL")
+        timer_dl = gr.Timer(1,active=False)
+        timer_dl.tick(get_download_speed, outputs=output)    
+        
+        
+        timer_c = gr.Timer(1,active=False)
+        timer_c.tick(refresh_container)
+                
+
+
+
+
+        
+        
+        
+        
+        
+        
+
+
+
 
         
         model_dropdown.change(
@@ -1342,12 +1393,6 @@ def create_app():
 
 
         
-        btn.click(
-            predict_with_my_model,
-            input_components.to_list(),
-            [output]
-        )
-
         
         btn_vllm_running.click(
             load_vllm_running,
@@ -1362,41 +1407,6 @@ def create_app():
             [vllm_create_engine_arguments_row, vllm_engine_arguments_btn]
         )
 
-
-         
-        btn_interface = gr.Button("Load Interface",visible=False)
-        @gr.render(inputs=[selected_model_pipeline_tag, selected_model_id], triggers=[btn_interface.click])
-        def show_split(text_pipeline, text_model):
-            if len(text_model) == 0:
-                gr.Markdown("Error pipeline_tag or model_id")
-            else:
-                selected_model_id_arr = str(text_model).split('/')
-                print(f'selected_model_id_arr {selected_model_id_arr}...')            
-                gr.Interface.from_pipeline(pipeline(text_pipeline, model=f'/models/{selected_model_id_arr[0]}/{selected_model_id_arr[1]}'))
-
-        timer_dl = gr.Timer(1,active=False)
-        timer_dl.tick(get_download_speed, outputs=output)    
-        
-        
-        timer_c = gr.Timer(1,active=False)
-        timer_c.tick(refresh_container)
-                
-
-
-
-
-        
-        
-        
-        
-        
-        
-
-
-
-
-        
-        
         
         
         
@@ -1415,17 +1425,7 @@ def create_app():
 
         
         
-        with gr.Row():
-            top_p = gr.Textbox(label="top_p", placeholder="0.95", value=0.95, visible=True)
-            temperature = gr.Slider(0.1, 1.0, step=0.1, label="temperature", value=0.8, visible=True)
-            max_tokens = gr.Number(label="max_tokens", value=150, visible=True)
-        
-        
-        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Query", show_label=True, visible=True)  
-        prompt_out = gr.Textbox(placeholder="Result will appear here", label="Output", show_label=True, visible=True)
-        prompt_btn = gr.Button("Submit", visible=True)
-        
-        
+
 
         # load_btn.click(lambda model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in: vllm_api("load", model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in), inputs=[model_dropdown, selected_model_pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in], outputs=prompt_out)
             
