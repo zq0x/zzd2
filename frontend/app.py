@@ -415,7 +415,10 @@ def get_additional_info(selected_id):
             "tokenizer_config" : "",
             "model_id" : selected_id,
             "size" : 0,
-            "gated" : ""
+            "gated" : "",
+            "torch_dtype" : "",
+            "cuda_support" : "",
+            "compute_capability" : ""
         }                
         try:
             try:
@@ -445,17 +448,26 @@ def get_additional_info(selected_id):
                     print(f'  FOUND safetensors:::::::: {safetensors_json}')
                     logging.info(f'  GFOUND safetensors:::::::: {safetensors_json}') 
                     try:
-                        first_key = next(iter(safetensors_json['parameters'].keys()))
-                        print(f'  FOUND first key in parameters:::::::: {first_key}')
-                        res_model_data['quantization'] = first_key
+                        quantization_key = next(iter(safetensors_json['parameters'].keys()))
+                        print(f'  FOUND first key in parameters:::::::: {quantization_key}')
+                        res_model_data['quantization'] = quantization_key
                         
                     except Exception as get_model_info_err:
-                        print(f'  first key NOT FOUND in parameters:::::::: {first_key}')
+                        print(f'  first key NOT FOUND in parameters:::::::: {quantization_key}')
                         pass
                     
                     print(f'  FOUND safetensors TOTAL :::::::: {safetensors_json["total"]}')
-                    logging.info(f'  GFOUND safetensors:::::::: {safetensors_json["total"]}')   
-                    res_model_data['size'] = int(safetensors_json["total"]) * 2
+                    logging.info(f'  GFOUND safetensors:::::::: {safetensors_json["total"]}')
+                                        
+                    print(f'  ooOOOOOOOOoooooo res_model_data["quantization"] {res_model_data["quantization"]}')
+                    logging.info(f'ooOOOOOOOOoooooo res_model_data["quantization"] {res_model_data["quantization"]}')
+                    if res_model_data["quantization"] == "F32":
+                        print(f'  ooOOOOOOOOoooooo found F32 -> x4')
+                        logging.info(f'ooOOOOOOOOoooooo found F32 -> x4')
+                    else:
+                        print(f'  ooOOOOOOOOoooooo NUUUH FIND F32 -> x2')
+                        logging.info(f'ooOOOOOOOOoooooo NUUUH FIND F32 -> x2')
+                        res_model_data['size'] = int(safetensors_json["total"]) * 2
                 else:
                     print(f' !!!!DIDNT FIND safetensors !!!! :::::::: ')
                     logging.info(f' !!!!!! DIDNT FIND safetensors !!:::::::: ') 
@@ -474,6 +486,9 @@ def get_additional_info(selected_id):
                     res_model_data["config_data"] = response_json
                     if "architectures" in res_model_data["config_data"]:
                         res_model_data["architectures"] = res_model_data["config_data"]["architectures"][0]
+                    if "torch_dtype" in res_model_data["config_data"]:
+                        res_model_data["torch_dtype"] = res_model_data["config_data"]["torch_dtype"]
+                    res_model_data["config_data"]
                 else:
                     res_model_data["config_data"] = f'{response.status_code}'
                     
@@ -493,7 +508,7 @@ def get_additional_info(selected_id):
         
         except Exception as e:
             print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
-            return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"],  res_model_data["quantization"]
+            return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"],  res_model_data["quantization"],  res_model_data["torch_dtype"]
 
 def gr_load_check(selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization):
     
@@ -1148,7 +1163,7 @@ def create_app():
                         selected_model_model_type = gr.Textbox(label="model_type")
                         selected_model_quantization = gr.Textbox(label="quantization")
                         selected_model_size = gr.Textbox(label="size")
-                                                       
+                        selected_model_torch_dtype = gr.Textbox(label="torch_dtype")                        
                         
                     with gr.Row():
                         selected_model_private = gr.Textbox(label="private")
@@ -1275,7 +1290,7 @@ def create_app():
         ).then(
             get_additional_info, 
             model_dropdown, 
-            [selected_model_hf_data, selected_model_config_data, selected_model_architectures,selected_model_id, selected_model_size, selected_model_gated, selected_model_model_type, selected_model_quantization]
+            [selected_model_hf_data, selected_model_config_data, selected_model_architectures,selected_model_id, selected_model_size, selected_model_gated, selected_model_model_type, selected_model_quantization, selected_model_torch_dtype]
         ).then(
             lambda: gr.update(visible=True), 
             None, 
