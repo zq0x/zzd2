@@ -1112,7 +1112,7 @@ def download_info(req_model_size, progress=gr.Progress()):
         download_info_current_model_bytes_recv = download_info_current_model_bytes_recv + download_info_prev_bytes_recv
 
         progress_percent = (i + 1) / est_download_time_sec
-        progress(progress_percent, desc=f"Downloading ... {download_speed_mbit_s:.2f} MBit/s {download_info_current_model_bytes_recv}/{req_model_size}")
+        progress(progress_percent, desc=f"Downloading ... {download_speed_mbit_s:.2f} MBit/s")
 
         time.sleep(1)
     logging.info(f' **************** [download_info] zzz waiting for download_complete_event zzz waiting {est_download_time_sec/10}')
