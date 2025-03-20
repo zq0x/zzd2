@@ -484,11 +484,18 @@ def get_additional_info(selected_id):
                 if response.status_code == 200:
                     response_json = response.json()
                     res_model_data["config_data"] = response_json
+                    
                     if "architectures" in res_model_data["config_data"]:
                         res_model_data["architectures"] = res_model_data["config_data"]["architectures"][0]
+                        
                     if "torch_dtype" in res_model_data["config_data"]:
                         res_model_data["torch_dtype"] = res_model_data["config_data"]["torch_dtype"]
-                    res_model_data["config_data"]
+                        print(f'  ooOOOOOOOOoooooo torch_dtype: {res_model_data["torch_dtype"]}')
+                        logging.info(f'ooOOOOOOOOoooooo torch_dtype: {res_model_data["torch_dtype"]}')
+                    if "hidden_size" in res_model_data["config_data"]:
+                        res_model_data["hidden_size"] = res_model_data["config_data"]["hidden_size"]
+                        print(f'  ooOOOOOOOOoooooo hidden_size: {res_model_data["hidden_size"]}')
+                        logging.info(f'ooOOOOOOOOoooooo hidden_size: {res_model_data["hidden_size"]}')
                 else:
                     res_model_data["config_data"] = f'{response.status_code}'
                     
@@ -504,11 +511,13 @@ def get_additional_info(selected_id):
                 except Exception as get_config_json_err:
                     res_model_data["size"] = 0
     
-            return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["architectures"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"],  res_model_data["quantization"]
+    
+    
+            return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["architectures"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"], res_model_data["quantization"], res_model_data["torch_dtype"], res_model_data["hidden_size"]
         
         except Exception as e:
             print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
-            return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"],  res_model_data["quantization"],  res_model_data["torch_dtype"]
+            return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"],  res_model_data["quantization"], res_model_data["torch_dtype"], res_model_data["hidden_size"]
 
 def gr_load_check(selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization):
     
@@ -1147,7 +1156,7 @@ def create_app():
             model_dropdown = gr.Dropdown(choices=[''], interactive=True, show_label=False)
         with gr.Row(visible=False) as row_model_info:
             with gr.Column(scale=4):
-                with gr.Accordion(("Model Parameters"), open=False):                    
+                with gr.Accordion(("Model Parameters"), open=True):                    
                     with gr.Row():
                         selected_model_id = gr.Textbox(label="id")
                         selected_model_container_name = gr.Textbox(label="container_name")
@@ -1163,7 +1172,8 @@ def create_app():
                         selected_model_model_type = gr.Textbox(label="model_type")
                         selected_model_quantization = gr.Textbox(label="quantization")
                         selected_model_size = gr.Textbox(label="size")
-                        selected_model_torch_dtype = gr.Textbox(label="torch_dtype")                        
+                        selected_model_torch_dtype = gr.Textbox(label="torch_dtype")        
+                        selected_model_hidden_size = gr.Textbox(label="hidden_size")                        
                         
                     with gr.Row():
                         selected_model_private = gr.Textbox(label="private")
@@ -1219,38 +1229,34 @@ def create_app():
                 # vllm_engine_arguments_show = gr.Button("GENERATE NEW VLLM", variant="primary")
                 # vllm_engine_arguments_close = gr.Button("CANCEL")
 
-                
-        
-        
                     
+            with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
+                btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
+                btn_vllm_running = gr.Button("DEPLOY VLLM", visible=True)
 
-                            
-                
-        with gr.Column(scale=4) as column_select_vllm_engine_arguments:
-            with gr.Row(visible=True):
-                vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
-
+            
+            
 
                     
             
 
-            
-            
-            
-            
-            
-            with gr.Row(visible=True) as vllm_running_engine_arguments_row:
-                with gr.Column(scale=4):
-                    with gr.Accordion(("vLLM Parameters"), open=True):
-                        vllm_input_components = VllmInputComponents(
-                            model_id=gr.Textbox(placeholder=f'{selected_model_id}', value=f'{selected_model_id}', label="model_id", info="Hugging Face Model ID"),
-                            max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
-                            tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
-                            gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
-                        )
-                with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
-                    btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
-                    btn_vllm_running = gr.Button("DEPLOY VLLM", visible=True)
+        
+        
+        
+        
+        
+        with gr.Row(visible=True) as vllm_running_engine_arguments_row:
+            with gr.Column(scale=4):
+                with gr.Accordion(("vLLM Parameters"), open=True):
+                    vllm_input_components = VllmInputComponents(
+                        model_id=gr.Textbox(placeholder=f'{selected_model_id}', value=f'{selected_model_id}', label="model_id", info="Hugging Face Model ID"),
+                        max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
+                        tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
+                        gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
+                    )
+            with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
+                btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
+                btn_vllm_running = gr.Button("DEPLOY VLLM", visible=True)
 
         
         with gr.Row():
@@ -1341,7 +1347,7 @@ def create_app():
         ).then(
             get_additional_info, 
             model_dropdown, 
-            [selected_model_hf_data, selected_model_config_data, selected_model_architectures,selected_model_id, selected_model_size, selected_model_gated, selected_model_model_type, selected_model_quantization, selected_model_torch_dtype]
+            [selected_model_hf_data, selected_model_config_data, selected_model_architectures,selected_model_id, selected_model_size, selected_model_gated, selected_model_model_type, selected_model_quantization, selected_model_torch_dtype, selected_model_hidden_size]
         ).then(
             lambda: gr.update(visible=True), 
             None, 
