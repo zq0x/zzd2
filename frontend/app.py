@@ -132,7 +132,7 @@ vllm_supported_architectures = [
     "whisper"
 ]
 
-REQUEST_TIMEOUT = 50
+REQUEST_TIMEOUT = 300
 def wait_for_backend(backend_url, timeout=300):
     start_time = time.time()
     while time.time() - start_time < timeout:
@@ -1135,7 +1135,8 @@ def parallel_download(selected_model_size, model_dropdown):
 
     return "Download finished!"
 
-
+def pass_to_model_id(req_model_id):
+    return f'{req_model_id}'
 
 
 def create_app():
@@ -1158,7 +1159,7 @@ def create_app():
             with gr.Column(scale=4):
                 with gr.Accordion(("Model Parameters"), open=True):                    
                     with gr.Row():
-                        selected_model_id = gr.Textbox(label="id")
+                        selected_model_id = gr.Textbox(label="model_id")
                         selected_model_container_name = gr.Textbox(label="container_name")
                         
                         
@@ -1194,57 +1195,18 @@ def create_app():
                     with gr.Row():
                         port_model = gr.Number(value=8001,visible=False,label="Port of model: ")
                         port_vllm = gr.Number(value=8000,visible=False,label="Port of vLLM: ")
-                        
-                
-                           
-        with gr.Row(visible=False) as column_model_actions:
-            with gr.Column(scale=3):
+        
+        
+        
+        
+        with gr.Row(visible=True) as output_column_model_actions:
+            with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
                 download_info_output = gr.Textbox(label="Download Info Output", show_label=True, visible=True) 
-            with gr.Column(scale=1):
-                
-                
-                input_search.submit(
-                    search_models, 
-                    input_search, 
-                    [model_dropdown]
-                ).then(
-                    lambda: gr.update(visible=True), 
-                    None, 
-                    model_dropdown
-                )
-                
-                btn_search.click(
-                    search_models, 
-                    input_search, 
-                    [model_dropdown]
-                ).then(
-                    lambda: gr.update(visible=True), 
-                    None, 
-                    model_dropdown
-                )
 
-
-
-                # vllm_engine_arguments_show = gr.Button("GENERATE NEW VLLM", variant="primary")
-                # vllm_engine_arguments_close = gr.Button("CANCEL")
-
-                    
-            with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
+            with gr.Column(scale=1) as btn_column_model_actions:
                 btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
-                btn_vllm_running = gr.Button("DEPLOY VLLM", visible=True)
 
-            
-            
-
-                    
-            
-
-        
-        
-        
-        
-        
         with gr.Row(visible=True) as vllm_running_engine_arguments_row:
             with gr.Column(scale=4):
                 with gr.Accordion(("vLLM Parameters"), open=True):
@@ -1255,8 +1217,7 @@ def create_app():
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
             with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
-                btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
-                btn_vllm_running = gr.Button("DEPLOY VLLM", visible=True)
+                btn_vllm_running = gr.Button("DEPLOY", visible=True)
 
         
         with gr.Row():
@@ -1333,10 +1294,6 @@ def create_app():
         
         
         
-        
-        
-
-
 
 
         
@@ -1359,11 +1316,15 @@ def create_app():
         ).then(
             lambda: gr.update(visible=True), 
             None, 
-            column_model_actions
+            output_column_model_actions
         ).then(
-            gr_load_check, [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization]
-            ,
+            gr_load_check, 
+            [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
             [output,btn_dl,vllm_running_engine_arguments_row,vllm_create_engine_arguments_row]
+        ).then(
+            pass_to_model_id, 
+            model_dropdown,
+            selected_model_id
         )
             
 
