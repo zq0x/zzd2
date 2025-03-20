@@ -1159,7 +1159,7 @@ def create_app():
             with gr.Column(scale=4):
                 with gr.Accordion(("Model Parameters"), open=True):                    
                     with gr.Row():
-                        selected_model_id = gr.Textbox(label="model_id")
+                        selected_model_id = gr.Textbox(label="id")
                         selected_model_container_name = gr.Textbox(label="container_name")
                         
                         
@@ -1195,10 +1195,9 @@ def create_app():
                     with gr.Row():
                         port_model = gr.Number(value=8001,visible=False,label="Port of model: ")
                         port_vllm = gr.Number(value=8000,visible=False,label="Port of vLLM: ")
-        
-        
-        
-        
+                        
+                
+                           
         with gr.Row(visible=True) as output_column_model_actions:
             with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
@@ -1290,10 +1289,28 @@ def create_app():
 
 
 
+
+        input_search.submit(
+            search_models, 
+            input_search, 
+            [model_dropdown]
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            model_dropdown
+        )
         
-        
-        
-        
+        btn_search.click(
+            search_models, 
+            input_search, 
+            [model_dropdown]
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            model_dropdown
+        )
+
+
 
 
         
