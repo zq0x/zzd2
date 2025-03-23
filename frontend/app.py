@@ -417,6 +417,7 @@ def get_additional_info(selected_id):
             "size" : 0,
             "gated" : "",
             "torch_dtype" : "",
+            "hidden_size" : "",
             "cuda_support" : "",
             "compute_capability" : ""
         }                
@@ -569,7 +570,7 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     if req_model_path in models_found:
         print(f' **************** FOUND MODELS ALREADY!!! {selected_model_id} ist in {models_found}')
         model_path = req_model_path
-        return f'Model already downloaded!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+        return f'Model already downloaded!', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
     else:
         print(f' **************** NUH UH DIDNT FIND MODEL YET!! {selected_model_id} ist NAWT in {models_found}')
     
