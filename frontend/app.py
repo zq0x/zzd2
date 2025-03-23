@@ -510,7 +510,12 @@ def get_additional_info(selected_id):
                     res_model_data["size"] = calculate_model_size(res_model_data["config_data"]) 
                 except Exception as get_config_json_err:
                     res_model_data["size"] = 0
-    
+
+            # quantization size 
+            if res_model_data['quantization'] == "F32" or res_model_data["torch_dtype"] == "float32":
+                res_model_data["size"] = res_model_data["size"] * 2
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] **************** res_model_data["size"] * 2 ...')
+                logging.info(f' **************** res_model_data["size"] * 2...')
     
     
             return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["architectures"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"], res_model_data["quantization"], res_model_data["torch_dtype"], res_model_data["hidden_size"]
@@ -1210,7 +1215,7 @@ def create_app():
             with gr.Column(scale=4):
                 with gr.Accordion(("vLLM Parameters"), open=True):
                     vllm_input_components = VllmInputComponents(
-                        model_id=gr.Textbox(placeholder=f'{selected_model_id.value}', value=f'{selected_model_id.value}', label="model_id", info="Hugging Face Model ID"),
+                        model_id=gr.Textbox(placeholder=f'{GLOBAL_SELECTED_MODEL_ID}', value=f'{GLOBAL_SELECTED_MODEL_ID}', label="model_id", info="Hugging Face Model ID"),
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
@@ -1338,10 +1343,6 @@ def create_app():
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
             [output,btn_dl,vllm_running_engine_arguments_row,vllm_create_engine_arguments_row]
-        ).then(
-            pass_to_model_id, 
-            model_dropdown,
-            selected_model_id
         )
             
 
