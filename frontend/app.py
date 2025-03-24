@@ -601,7 +601,7 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
 
     # check model > size memory size
     if float(selected_model_size) > float(GLOBAL_MEM_TOTAL):
-        return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_TOTAL)*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+        return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float('12288.00 MB'.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
         # return f'ERR: model size extends GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
     
     if float(selected_model_size) > float(GLOBAL_MEM_FREE):
