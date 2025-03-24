@@ -594,32 +594,34 @@ async def docker_rest(request: Request):
     try:
         req_data = await request.json()
                 
-        if req_data["req_method"] == "cleartensorflow":
+        if req_data["req_method"] == "clearpynvml":
             print(f'got {req_data["req_method"]}!')
             print("req_data")
             print(req_data)
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
+            try:
+                device_count = pynvml.nvmlDeviceGetCount()
 
-            gpus = tf.config.experimental.list_physical_devices('GPU')
-            if gpus:
-                try:
-                    for gpu in gpus:
-                        tf.config.experimental.set_memory_growth(gpu, True)
-                    tf.keras.backend.clear_session()
-                    tf.compat.v1.reset_default_graph()
+                for i in range(device_count):
+
+                    handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+                    gpu_name = pynvml.nvmlDeviceGetName(handle)
+                    print(f"")
+                    print(f' ??????? {req_data["req_method"]}  Clearing memory for GPU {i}: {gpu_name}')
+                    logging.info(f' ??????? {req_data["req_method"]}  Clearing memory for GPU {i}: {gpu_name}')
+
+                    pynvml.nvmlDeviceSetApplicationsClocks(handle, pynvml.NVML_CLOCK_GRAPHICS, pynvml.NVML_CLOCK_GRAPHICS)
+                    pynvml.nvmlDeviceResetGpu(handle)
+
+                    print(f' ??????? {req_data["req_method"]}GPU {i} memory cleared and reset.')
+                    logging.info(f' ??????? {req_data["req_method"]}GPU {i} memory cleared and reset.')
                     
-                    print(f' ??????? {req_data["req_method"]}  TENSORFLOW SUCCESS')
-                    logging.info(f' ??????? {req_data["req_method"]}  TENSORFLOW SUCCESS')
-                    return JSONResponse({"result_status": 200, "result_data": f'cache emptied {req_data["req_method"]} success!'})
-                except RuntimeError as e:
-                    print(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 1')
-                    logging.info(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 1')
-                    return JSONResponse({"result_status": 500, "result_data": f'tensorflow no GPUS found ???? 1'})
+                
           
-            else:
-                print(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 2')
-                logging.info(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 2')
-                return JSONResponse({"result_status": 500, "result_data": f'tensorflow no GPUS found ???? 2'})
+            except pynvml.NVMLError as e:
+                print(f' ??????? {req_data["req_method"]}  {e}')
+                logging.info(f' ??????? {req_data["req_method"]}  {e}')
+                return JSONResponse({"result_status": 500, "result_data": f'{e}'})
                 
         if req_data["req_method"] == "cleartorch":
             print(f'got {req_data["req_method"]}!')
