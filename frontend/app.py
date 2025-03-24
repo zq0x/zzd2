@@ -1131,17 +1131,21 @@ def docker_api(req_type,req_model=None,req_task=None,req_prompt=None,req_tempera
         return e
 
 
-def toggle_vllm_create_engine_arguments(vllm_list):
+def toggle_vllm_load_create(vllm_list):
     
     if "Create New" in vllm_list:
         return (
             gr.Textbox(visible=True),
-            gr.Button(visible=True)
+            gr.Button(visible=True),    
+            gr.Textbox(visible=False),
+            gr.Button(visible=False)
         )
 
     return (
         gr.Textbox(visible=False),
-        gr.Button(visible=False)
+        gr.Button(visible=False),
+        gr.Textbox(visible=True),
+        gr.Button(visible=True)
     )
 
 def load_vllm_running3(*params):
@@ -1548,7 +1552,7 @@ def create_app():
             with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
                         
-                with gr.Accordion(("Create vLLM Parameters"), open=True, visible=True) as row_vllm_create_settings:
+                with gr.Accordion(("Create vLLM Parameters"), open=True, visible=True) as vllm_create_settings:
                     vllm_create_components = VllmCreateComponents(
                         create_max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         create_tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
@@ -1566,7 +1570,7 @@ def create_app():
                                         
                 
                 
-                with gr.Accordion(("Load vLLM Parameters"), open=False, visible=False) as accordion_vllm_params:
+                with gr.Accordion(("Load vLLM Parameters"), open=False, visible=False) as vllm_load_settings:
                     vllm_load_components = VllmLoadComponents(
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
@@ -1574,7 +1578,7 @@ def create_app():
                     )
                     
                 
-                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_llm_prompt:
+                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_vllm_prompt_settings:
                     llm_prompt_components = PromptComponents(
                         prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
                         top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
@@ -1582,15 +1586,15 @@ def create_app():
                         max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
                     )  
 
-            with gr.Column(scale=1) as btn_column_model_actions:
+            with gr.Column(scale=1):
                 with gr.Row(visible=False) as row_download:
                     btn_dl = gr.Button("DOWNLOAD", variant="primary")
-                with gr.Row(visible=False) as row_deploy:
+                with gr.Row(visible=False) as vllm_load_actions:
                     btn_load_vllm = gr.Button("DEPLOY")
-                    btn_vllm_running2 = gr.Button("CLEAR NU GO 1370")
+                    # btn_vllm_running2 = gr.Button("CLEAR NU GO 1370")
                     # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
                     prompt_btn = gr.Button("PROMPT", visible=True)
-                with gr.Row(visible=False) as row_vllm_create_actions:
+                with gr.Row(visible=False) as vllm_create_actions:
                     btn_create_vllm = gr.Button("CREATE", variant="primary")
                     btn_create_vllm_close = gr.Button("CANCEL")
 
@@ -1610,7 +1614,7 @@ def create_app():
             vllm_running_engine_arguments_close = gr.Button("CANCEL")
              
         # hia       
-        with gr.Row(visible=False) as row_vllm_create_settings:
+        with gr.Row(visible=False) as vllm_create_settings:
             with gr.Column(scale=4):
                 with gr.Accordion(("Create Parameters"), open=False):
                     input_components = InputComponents(
@@ -1708,33 +1712,33 @@ def create_app():
         ).then(
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
-            [output,row_download,accordion_vllm_params,btn_load_vllm]
+            [output,row_download,vllm_load_settings,btn_load_vllm]
         )
 
 
         vllm_running_engine_arguments_show.click(
             lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)], 
             None, 
-            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, row_deploy]
+            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, vllm_load_settings]
         )
         
         vllm_running_engine_arguments_close.click(
             lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)], 
             None, 
-            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, row_deploy]
+            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, vllm_load_settings]
         )
 
 
         btn_create_vllm.click(
             lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)], 
             None, 
-            [row_create_vllm, btn_create_vllm_close, row_vllm_create_settings]
+            [row_create_vllm, btn_create_vllm_close, vllm_create_settings]
         )
         
         btn_create_vllm_close.click(
             lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)], 
             None, 
-            [row_create_vllm, btn_create_vllm_close, row_vllm_create_settings]
+            [row_create_vllm, btn_create_vllm_close, vllm_create_settings]
         )
 
 
@@ -1748,7 +1752,7 @@ def create_app():
         ).then(
             lambda: gr.update(open=False), 
             None, 
-            accordion_vllm_params
+            vllm_load_settings
         )
         
         btn_create_vllm.click(
@@ -1758,7 +1762,7 @@ def create_app():
         ).then(
             lambda: gr.update(open=False), 
             None, 
-            accordion_vllm_params
+            vllm_load_settings
         )
 
 
@@ -1772,20 +1776,19 @@ def create_app():
 
 
         
-        btn_vllm_running2.click(
-            load_vllm_running2,
-            vllm_load_components.to_list(),
-            [output]
-        )
+        # btn_vllm_running2.click(
+        #     load_vllm_running2,
+        #     vllm_load_components.to_list(),
+        #     [output]
+        # )
 
 
 
         vllms.change(
-            toggle_vllm_create_engine_arguments,
+            toggle_vllm_load_create,
             vllms,
-            [row_vllm_create_settings, row_vllm_create_actions]
+            [vllm_load_settings, vllm_load_actions, vllm_create_settings, vllm_create_actions]
         )
-
         
         
         
@@ -2159,11 +2162,11 @@ def create_app():
         ).then(
             lambda: gr.update(visible=True),
             None,
-            row_deploy
+            vllm_load_settings
         ).then(
             lambda: gr.update(visible=True),
             None,
-            accordion_vllm_params
+            vllm_create_settings
         )
 
 
