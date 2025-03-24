@@ -1551,8 +1551,11 @@ def create_app():
         with gr.Row(visible=True) as output_column_model_actions:
             with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
-                        
-                with gr.Accordion(("Create vLLM Parameters"), open=True, visible=True) as vllm_create_settings:
+                
+                with gr.Row(visible=True) as row_create_vllm:
+                    vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
+                    
+                with gr.Accordion(("Create vLLM Parameters"), open=False, visible=False) as vllm_create_settings:
                     vllm_create_components = VllmCreateComponents(
                         create_max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         create_tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
@@ -1560,8 +1563,7 @@ def create_app():
                     )
                     
                     
-                with gr.Row(visible=True) as row_create_vllm:
-                    vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
+
                     
                     
                 
