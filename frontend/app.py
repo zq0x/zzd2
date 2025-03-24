@@ -26,6 +26,7 @@ vllm_supported_architectures = [
     "baichuanforcausallm",
     "bloomforcausallm",
     "bartforconditionalgeneration",
+    "bartmodel",
     "chatglmmodel",
     "cohereforcausallm",
     "cohere2forcausallm",
@@ -1037,7 +1038,7 @@ class PromptValues:
 
 
 @dataclass
-class VllmInputComponents:
+class VllmCreateInputComponents:
     max_model_len: gr.Slider
     tensor_parallel_size: gr.Number
     gpu_memory_utilization: gr.Slider
@@ -1046,7 +1047,22 @@ class VllmInputComponents:
         return [getattr(self, f.name) for f in fields(self)]
 
 @dataclass
-class VllmInputValues:
+class VllmCreateInputValues:
+    max_model_len: int
+    tensor_parallel_size: int
+    gpu_memory_utilization: int
+
+@dataclass
+class VllmLoadInputComponents:
+    max_model_len: gr.Slider
+    tensor_parallel_size: gr.Number
+    gpu_memory_utilization: gr.Slider
+    
+    def to_list(self) -> list:
+        return [getattr(self, f.name) for f in fields(self)]
+
+@dataclass
+class VllmLoadInputValues:
     max_model_len: int
     tensor_parallel_size: int
     gpu_memory_utilization: int
@@ -1137,7 +1153,7 @@ def load_vllm_running3(*params):
         logging.info(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         logging.info(f'[load_vllm_running] >> got params: {params} ')
                 
-        req_params = VllmInputValues(*params)
+        req_params = VllmLoadInputValues(*params)
 
 
         response = requests.post(BACKEND_URL, json={
@@ -1174,7 +1190,7 @@ def load_vllm_running2(*params):
         logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         logging.exception(f'[load_vllm_running] >> got params: {params} ')
                 
-        req_params = VllmInputValues(*params)
+        req_params = VllmLoadInputValues(*params)
 
 
         response = requests.post(BACKEND_URL, json={
@@ -1211,7 +1227,7 @@ def load_vllm_running(*params):
         logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         logging.exception(f'[load_vllm_running] >> got params: {params} ')
                 
-        req_params = VllmInputValues(*params)
+        req_params = VllmLoadInputValues(*params)
 
 
         response = requests.post(BACKEND_URL, json={
@@ -1490,16 +1506,35 @@ def create_app():
                         port_vllm = gr.Number(value=8000,visible=False,label="Port of vLLM: ")
                         
                 
-                           
+        # hier 2
         with gr.Row(visible=True) as output_column_model_actions:
             with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
-                with gr.Accordion(("vLLM Parameters"), open=False, visible=False) as accordion_vllm_params:
-                    vllm_input_components = VllmInputComponents(
+                        
+
+                with gr.Row(visible=True) as row_create_vllm:
+                    vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
+                    
+                    
+                
+                
+                with gr.Accordion(("Create new vLLM Parameters"), open=True, visible=True) as row_vllm_create_settings:
+                    vllm_input_components = VllmCreateInputComponents(
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
+                                        
+                
+                
+                with gr.Accordion(("Load vLLM Parameters"), open=False, visible=False) as accordion_vllm_params:
+                    vllm_input_components = VllmLoadInputComponents(
+                        max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
+                        tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
+                        gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
+                    )
+                    
+                
                 with gr.Accordion(("Prompt Parameters"), open=False) as accordion_llm_generate:
                     llm_generate_components = PromptComponents(
                         prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
@@ -1516,7 +1551,9 @@ def create_app():
                     btn_vllm_running2 = gr.Button("CLEAR NVIDIA SMI")
                     # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
                     prompt_btn = gr.Button("PROMPT", visible=True)
-
+                with gr.Row(visible=False) as row_vllm_create_actions:
+                    vllm_engine_arguments_show = gr.Button("CREATE NEW VLLM", variant="primary")
+                    vllm_engine_arguments_close = gr.Button("CANCEL")
 
 
         gpu_dataframe = gr.Dataframe(label="GPU information")
@@ -1527,16 +1564,14 @@ def create_app():
         
 
         
-        
-        with gr.Column(scale=4) as column_select_vllm_engine_arguments:
-            with gr.Row(visible=True):
-                vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
+
 
         with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
             vllm_running_engine_arguments_show = gr.Button("LOAD VLLM CREATEEEEEEEEUUUUHHHHHHHH", variant="primary")
             vllm_running_engine_arguments_close = gr.Button("CANCEL")
-                    
-        with gr.Row(visible=False) as vllm_create_engine_arguments_row:
+             
+        # hia       
+        with gr.Row(visible=False) as row_vllm_create_settings:
             with gr.Column(scale=4):
                 with gr.Accordion(("Create Parameters"), open=False):
                     input_components = InputComponents(
@@ -1550,9 +1585,7 @@ def create_app():
                         activity_list=gr.Dropdown(["ran", "swam", "ate", "slept"], value=["swam", "slept"], multiselect=True, label="Activity", info="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor, nisl eget ultricies aliquam, nunc nisl aliquet nunc, eget aliquam nisl nunc vel nisl."),
                         morning=gr.Checkbox(label="Morning", value=True, info="Did they do it in the morning?")
                     )
-            with gr.Column(scale=1, visible=False) as vllm_engine_arguments_btn:
-                vllm_engine_arguments_show = gr.Button("CREATE NEW VLLM", variant="primary")
-                vllm_engine_arguments_close = gr.Button("CANCEL")
+
                 
 
     
@@ -1660,13 +1693,13 @@ def create_app():
         vllm_engine_arguments_show.click(
             lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)], 
             None, 
-            [vllm_engine_arguments_show, vllm_engine_arguments_close, vllm_create_engine_arguments_row]
+            [vllm_engine_arguments_show, vllm_engine_arguments_close, row_vllm_create_settings]
         )
         
         vllm_engine_arguments_close.click(
             lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)], 
             None, 
-            [vllm_engine_arguments_show, vllm_engine_arguments_close, vllm_create_engine_arguments_row]
+            [vllm_engine_arguments_show, vllm_engine_arguments_close, row_vllm_create_settings]
         )
 
 
@@ -1705,7 +1738,7 @@ def create_app():
         vllms.change(
             toggle_vllm_create_engine_arguments,
             vllms,
-            [vllm_create_engine_arguments_row, vllm_engine_arguments_btn]
+            [row_vllm_create_settings, row_vllm_create_actions]
         )
 
         
