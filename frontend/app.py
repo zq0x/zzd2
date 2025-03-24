@@ -360,20 +360,22 @@ def calculate_model_size(json_info): # to fix
 
 def get_info(selected_id):
     
-    print(f' @@@ [get_info] {selected_id}')
-    logging.info(f' @@@ [get_info] {selected_id}')   
-
+    print(f' @@@ [get_info] 0')
+    logging.info(f' @@@ [get_info] 0')   
+    container_name = ""
     res_model_data = {
         "search_data" : "",
-        "model_id" : selected_id,
+        "model_id" : "",
         "pipeline_tag" : "",
         "architectures" : "",
         "transformers" : "",
         "private" : "",
         "downloads" : ""
     }
-    container_name = ""
+    
     if selected_id == '':
+        print(f' @@@ [get_info] selected_id NOT FOUND!! RETURN ')
+        logging.info(f' @@@ [get_info] selected_id NOT FOUND!! RETURN ') 
         return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
     
     global current_models_data
