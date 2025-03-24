@@ -1038,7 +1038,7 @@ class PromptValues:
 
 
 @dataclass
-class VllmCreateInputComponents:
+class VllmCreateComponents:
     create_max_model_len: gr.Slider
     create_tensor_parallel_size: gr.Number
     create_gpu_memory_utilization: gr.Slider
@@ -1047,13 +1047,13 @@ class VllmCreateInputComponents:
         return [getattr(self, f.name) for f in fields(self)]
 
 @dataclass
-class VllmCreateInputValues:
+class VllmCreateValues:
     create_max_model_len: int
     create_tensor_parallel_size: int
     create_gpu_memory_utilization: int
 
 @dataclass
-class VllmLoadInputComponents:
+class VllmLoadComponents:
     max_model_len: gr.Slider
     tensor_parallel_size: gr.Number
     gpu_memory_utilization: gr.Slider
@@ -1062,7 +1062,7 @@ class VllmLoadInputComponents:
         return [getattr(self, f.name) for f in fields(self)]
 
 @dataclass
-class VllmLoadInputValues:
+class VllmLoadValues:
     max_model_len: int
     tensor_parallel_size: int
     gpu_memory_utilization: int
@@ -1153,7 +1153,7 @@ def load_vllm_running3(*params):
         logging.info(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         logging.info(f'[load_vllm_running] >> got params: {params} ')
                 
-        req_params = VllmLoadInputValues(*params)
+        req_params = VllmLoadValues(*params)
 
 
         response = requests.post(BACKEND_URL, json={
@@ -1190,7 +1190,7 @@ def load_vllm_running2(*params):
         logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         logging.exception(f'[load_vllm_running] >> got params: {params} ')
                 
-        req_params = VllmLoadInputValues(*params)
+        req_params = VllmLoadValues(*params)
 
 
         response = requests.post(BACKEND_URL, json={
@@ -1218,16 +1218,16 @@ def load_vllm_running2(*params):
         return f'{e}'
     
     
-def load_vllm_running(*params):
+def llm_load(*params):
     
     try:
         global GLOBAL_SELECTED_MODEL_ID
-        print(f' >>> load_vllm_running GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        print(f' >>> load_vllm_running got params: {params} ')
-        logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        logging.exception(f'[load_vllm_running] >> got params: {params} ')
+        print(f' >>> llm_load GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        print(f' >>> llm_load got params: {params} ')
+        logging.exception(f'[llm_load] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.exception(f'[llm_load] >> got params: {params} ')
                 
-        req_params = VllmLoadInputValues(*params)
+        req_params = VllmLoadValues(*params)
 
 
         response = requests.post(BACKEND_URL, json={
@@ -1242,11 +1242,48 @@ def load_vllm_running(*params):
             print(f' !?!?!?!? got response == 200 building json ... {response} ')
             logging.exception(f'!?!?!?!? got response == 200 building json ...  {response} ')
             res_json = response.json()        
-            print(f' !?!?!?!? GOT RES_JSON: load_vllm_running GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+            print(f' !?!?!?!? GOT RES_JSON: llm_load GLOBAL_SELECTED_MODEL_ID: {res_json} ')
             logging.exception(f'!?!?!?!? GOT RES_JSON: {res_json} ')          
             return f'{res_json}'
         else:
-            logging.exception(f'[load_vllm_running] Request Error: {response}')
+            logging.exception(f'[llm_load] Request Error: {response}')
+            return f'Request Error: {response}'
+    
+    except Exception as e:
+        logging.exception(f'Exception occured: {e}', exc_info=True)
+        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
+        return f'{e}'
+        
+    
+def llm_create(*params):
+    
+    try:
+        global GLOBAL_SELECTED_MODEL_ID
+        print(f' >>> llm_create GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        print(f' >>> llm_create got params: {params} ')
+        logging.exception(f'[llm_create] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.exception(f'[llm_create] >> got params: {params} ')
+                
+        req_params = VllmCreateValues(*params)
+
+
+        response = requests.post(BACKEND_URL, json={
+            "req_method":"create",
+            "model_id":GLOBAL_SELECTED_MODEL_ID,
+            "max_model_len":req_params.max_model_len,
+            "tensor_parallel_size":req_params.tensor_parallel_size,
+            "gpu_memory_utilization":req_params.gpu_memory_utilization
+        }, timeout=REQUEST_TIMEOUT)
+
+        if response.status_code == 200:
+            print(f' [llm_create] >> got response == 200 building json ... {response} ')
+            logging.exception(f'[llm_create] >> got response == 200 building json ...  {response} ')
+            res_json = response.json()        
+            print(f' [llm_create] >> GOT RES_JSON: GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+            logging.exception(f'[llm_create] >> GOT RES_JSON: {res_json} ')          
+            return f'{res_json}'
+        else:
+            logging.exception(f'[llm_create] Request Error: {response}')
             return f'Request Error: {response}'
     
     except Exception as e:
@@ -1255,14 +1292,14 @@ def load_vllm_running(*params):
         return f'{e}'
     
         
-def llm_generate(*params):
+def llm_prompt(*params):
     
     try:
         global GLOBAL_SELECTED_MODEL_ID
-        print(f' >>> llm_generate GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        print(f' >>> llm_generate got params: {params} ')
-        logging.info(f'[llm_generate] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        logging.info(f'[llm_generate] >> got params: {params} ')
+        print(f' >>> llm_prompt GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        print(f' >>> llm_prompt got params: {params} ')
+        logging.info(f'[llm_prompt] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.info(f'[llm_prompt] >> got params: {params} ')
 
         req_params = PromptComponents(*params)
 
@@ -1282,14 +1319,14 @@ def llm_generate(*params):
         }, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 200:
-            print(f' !?!?!?!? [llm_generate] got response == 200 building json ... {response} ')
-            logging.info(f'!?!?!?!? [llm_generate] got response == 200 building json ...  {response} ')
+            print(f' !?!?!?!? [llm_prompt] got response == 200 building json ... {response} ')
+            logging.info(f'!?!?!?!? [llm_prompt] got response == 200 building json ...  {response} ')
             res_json = response.json()        
-            print(f' !?!?!?!? [llm_generate] GOT RES_JSON: llm_generate GLOBAL_SELECTED_MODEL_ID: {res_json} ')
-            logging.info(f'!?!?!?!? [llm_generate] GOT RES_JSON: {res_json} ')          
+            print(f' !?!?!?!? [llm_prompt] GOT RES_JSON: llm_prompt GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+            logging.info(f'!?!?!?!? [llm_prompt] GOT RES_JSON: {res_json} ')          
             return f'{res_json}'
         else:
-            logging.exception(f'[llm_generate] Request Error: {response}')
+            logging.exception(f'[llm_prompt] Request Error: {response}')
             return f'Request Error: {response}'
     
     except Exception as e:
@@ -1512,7 +1549,7 @@ def create_app():
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
                         
                 with gr.Accordion(("Create vLLM Parameters"), open=True, visible=True) as row_vllm_create_settings:
-                    vllm_input_components = VllmCreateInputComponents(
+                    vllm_create_components = VllmCreateComponents(
                         create_max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         create_tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         create_gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
@@ -1530,15 +1567,15 @@ def create_app():
                 
                 
                 with gr.Accordion(("Load vLLM Parameters"), open=False, visible=False) as accordion_vllm_params:
-                    vllm_input_components = VllmLoadInputComponents(
+                    vllm_load_components = VllmLoadComponents(
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
                     
                 
-                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_llm_generate:
-                    llm_generate_components = PromptComponents(
+                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_llm_prompt:
+                    llm_prompt_components = PromptComponents(
                         prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
                         top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
                         temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
@@ -1549,13 +1586,13 @@ def create_app():
                 with gr.Row(visible=False) as row_download:
                     btn_dl = gr.Button("DOWNLOAD", variant="primary")
                 with gr.Row(visible=False) as row_deploy:
-                    btn_vllm_running = gr.Button("DEPLOY")
-                    btn_vllm_running2 = gr.Button("CLEAR NVIDIA SMI")
+                    btn_load_vllm = gr.Button("DEPLOY")
+                    btn_vllm_running2 = gr.Button("CLEAR NU GO 1370")
                     # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
                     prompt_btn = gr.Button("PROMPT", visible=True)
                 with gr.Row(visible=False) as row_vllm_create_actions:
-                    vllm_engine_arguments_show = gr.Button("CREATE NEW VLLM", variant="primary")
-                    vllm_engine_arguments_close = gr.Button("CANCEL")
+                    btn_create_vllm = gr.Button("CREATE", variant="primary")
+                    btn_create_vllm_close = gr.Button("CANCEL")
 
 
         gpu_dataframe = gr.Dataframe(label="GPU information")
@@ -1671,7 +1708,7 @@ def create_app():
         ).then(
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
-            [output,row_download,accordion_vllm_params,btn_vllm_running]
+            [output,row_download,accordion_vllm_params,btn_load_vllm]
         )
 
 
@@ -1688,29 +1725,35 @@ def create_app():
         )
 
 
-
-
-            
-
-        vllm_engine_arguments_show.click(
+        btn_create_vllm.click(
             lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)], 
             None, 
-            [vllm_engine_arguments_show, vllm_engine_arguments_close, row_vllm_create_settings]
+            [row_create_vllm, btn_create_vllm_close, row_vllm_create_settings]
         )
         
-        vllm_engine_arguments_close.click(
+        btn_create_vllm_close.click(
             lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)], 
             None, 
-            [vllm_engine_arguments_show, vllm_engine_arguments_close, row_vllm_create_settings]
+            [row_create_vllm, btn_create_vllm_close, row_vllm_create_settings]
         )
 
 
 
 
         
-        btn_vllm_running.click(
-            load_vllm_running,
-            vllm_input_components.to_list(),
+        btn_load_vllm.click(
+            llm_load,
+            vllm_load_components.to_list(),
+            [output]
+        ).then(
+            lambda: gr.update(open=False), 
+            None, 
+            accordion_vllm_params
+        )
+        
+        btn_create_vllm.click(
+            llm_create,
+            vllm_create_components.to_list(),
             [output]
         ).then(
             lambda: gr.update(open=False), 
@@ -1721,8 +1764,8 @@ def create_app():
 
         
         prompt_btn.click(
-            llm_generate,
-            llm_generate_components.to_list(),
+            llm_prompt,
+            llm_prompt_components.to_list(),
             [output]
         )
 
@@ -1731,7 +1774,7 @@ def create_app():
         
         btn_vllm_running2.click(
             load_vllm_running2,
-            vllm_input_components.to_list(),
+            vllm_load_components.to_list(),
             [output]
         )
 
