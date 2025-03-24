@@ -668,6 +668,16 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     if selected_model_id == '':
         return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
     
+    
+    
+    
+    print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net')
+    logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net')
+    
+    
+    
+    
+    
     print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] checking if enough memory size for selected model available ....  ...')
     logging.info(f' ********* [gr_load_check] checking if enough memory size for selected model available .... ...')    
     
@@ -682,7 +692,11 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] selected_model_size {selected_model_size}')
     logging.info(f' ********* [gr_load_check] selected_model_size {selected_model_size} ')
     
-
+    
+    print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 2')
+    logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 2')
+    
+    
     # check model > size memory size
     if float(selected_model_size) > float(GLOBAL_MEM_TOTAL):
         return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_TOTAL.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
@@ -693,7 +707,11 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     
     
 
-
+    
+    print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 3 ')
+    logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 3')
+    
+    
 
 
 
