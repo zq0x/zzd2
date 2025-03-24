@@ -2060,6 +2060,16 @@ def create_app():
             output,
             concurrency_limit=15
         ).then(
+            download_info, 
+            selected_model_size, 
+            output,
+            concurrency_limit=15
+        ).then(
+            download_from_hf_hub, 
+            model_dropdown, 
+            output,
+            concurrency_limit=15
+        ).then(
             lambda: gr.update(label="Download finished!"), 
             None, 
             output
@@ -2087,7 +2097,7 @@ def create_app():
         # ).then(
         #     download_info, 
         #     selected_model_size, 
-        #     download_info_output,
+        #     output,
         #     concurrency_limit=15
         # ).then(
         #     download_from_hf_hub, 
