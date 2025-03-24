@@ -634,7 +634,7 @@ async def docker_rest(request: Request):
             req_container = client.containers.get(req_data["req_model"])
             res_logs = req_container.logs()
             res_logs_str = res_logs.decode('utf-8')
-            reversed_logs = "".join(res_logs_str.splitlines()[::-1])
+            reversed_logs = "\n".join(res_logs_str.splitlines()[::-1])
             return JSONResponse({"result": 200, "result_data": reversed_logs})
 
         if req_data["req_method"] == "network":

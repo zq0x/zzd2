@@ -1148,7 +1148,8 @@ def download_info(req_model_size, progress=gr.Progress()):
     logging.info(f' **************** [download_info] calculating seconds ... {req_model_size}/{avg_dl_speed_val} -> {est_download_time_sec}')
     print(f' **************** [download_info] calculating seconds ... {req_model_size}/{avg_dl_speed_val} -> {est_download_time_sec}')
 
-
+    logging.info(f' **************** [download_info] zzz waiting for download_complete_event zzz waiting {est_download_time_sec}')
+    print(f' **************** [download_info] zzz waiting for download_complete_event zzz waiting {est_download_time_sec}')
     for i in range(0,est_download_time_sec):
         net_io = psutil.net_io_counters()
         bytes_recv = net_io.bytes_recv
@@ -1162,8 +1163,8 @@ def download_info(req_model_size, progress=gr.Progress()):
         progress(progress_percent, desc=f"Downloading ... {download_speed_mbit_s:.2f} MBit/s")
 
         time.sleep(1)
-    logging.info(f' **************** [download_info] zzz waiting for download_complete_event zzz waiting {est_download_time_sec/10}')
-    print(f' **************** [download_info] zzz waiting for download_complete_event zzz waiting {est_download_time_sec/10}')
+    logging.info(f' **************** [download_info] LOOP DONE!')
+    print(f' **************** [download_info] LOOP DONE!')
     yield f'Progress: 100%\nFiniiiiiiiish!'
 
 
