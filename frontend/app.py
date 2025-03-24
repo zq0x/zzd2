@@ -1495,22 +1495,22 @@ def create_app():
             with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
                 download_info_output = gr.Textbox(label="Download Info Output", show_label=True, visible=True) 
-
-            with gr.Column(scale=1) as btn_column_model_actions:
-                btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
-
-        with gr.Row(visible=True) as vllm_running_engine_arguments_row:
-            with gr.Column(scale=4):
-                with gr.Accordion(("vLLM Parameters"), open=False) as accordion_vllm_params:
+                with gr.Accordion(("vLLM Parameters"), open=False, visible=False) as accordion_vllm_params:
                     vllm_input_components = VllmInputComponents(
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
-            with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
-                btn_vllm_running = gr.Button("DEPLOY", visible=True)
-                btn_vllm_running2 = gr.Button("CLEAR NVIDIA SMI", visible=True)
-                btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
+
+
+            with gr.Column(scale=1) as btn_column_model_actions:
+                btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
+                with gr.Row(visible=False) as row_deploy:
+                    btn_vllm_running = gr.Button("DEPLOY")
+                    btn_vllm_running2 = gr.Button("CLEAR NVIDIA SMI")
+                    # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
+
+
 
         gpu_dataframe = gr.Dataframe(label="GPU information")
         gpu_timer = gr.Timer(1,active=True)
@@ -1644,20 +1644,20 @@ def create_app():
         ).then(
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
-            [output,btn_dl,vllm_running_engine_arguments_row,vllm_create_engine_arguments_row]
+            [output,btn_dl,accordion_vllm_params,btn_vllm_running]
         )
-            
+
 
         vllm_running_engine_arguments_show.click(
             lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)], 
             None, 
-            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, vllm_running_engine_arguments_row]
+            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, row_deploy]
         )
         
         vllm_running_engine_arguments_close.click(
             lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)], 
             None, 
-            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, vllm_running_engine_arguments_row]
+            [vllm_running_engine_arguments_show, vllm_running_engine_arguments_close, row_deploy]
         )
 
 
@@ -1708,13 +1708,6 @@ def create_app():
             [output]
         )
 
-
-        
-        btn_vllm_running3.click(
-            load_vllm_running3,
-            vllm_input_components.to_list(),
-            [output]
-        )
 
 
         vllms.change(
@@ -2059,13 +2052,11 @@ def create_app():
         btn_dl.click(
             lambda: gr.update(label="Starting download ...", visible=True), 
             None, 
-            output,
-            concurrency_limit=15
+            output
         ).then(
             lambda: gr.Timer(active=True), 
             None, 
-            timer_dl,
-            concurrency_limit=15
+            timer_dl
         ).then(
             parallel_download, 
             [selected_model_size, model_dropdown], 
@@ -2074,81 +2065,90 @@ def create_app():
         ).then(
             lambda: gr.Timer(active=False), 
             None, 
-            timer_dl,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.update(label="Download finished!"), 
-            None, 
-            output,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            btn_interface,
-            concurrency_limit=15
-        )
-
-        btn_dl.click(
-            lambda: gr.update(
-                label="Starting download ...",
-                visible=True), 
-            None, 
-            output,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.Timer(active=True), 
-            None, 
-            timer_dl,
-            concurrency_limit=15
-        ).then(
-            download_info, 
-            selected_model_size, 
-            download_info_output,
-            concurrency_limit=15
-        ).then(
-            download_from_hf_hub, 
-            model_dropdown, 
-            output,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.Timer(active=False), 
-            None, 
-            timer_dl,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.update(label="Download finished!"), 
-            None, 
-            output,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            btn_interface,
-            concurrency_limit=15
-        )
-
-        btn_deploy = gr.Button("Deploy", visible=True)
-        btn_deploy.click(
-            lambda: gr.update(label="Building vLLM container",visible=True), 
-            None, 
-            output
-        ).then(
-            docker_api_create,
-            [model_dropdown,selected_model_pipeline_tag,port_model,port_vllm],
-            output
-        ).then(
-            refresh_container,
-            None,
-            [container_state]
-        ).then(
-            lambda: gr.Timer(active=True), 
-            None, 
             timer_dl
+        ).then(
+            lambda: gr.update(label="Download finished!"), 
+            None, 
+            output
         ).then(
             lambda: gr.update(visible=True), 
             None, 
             btn_interface
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            row_deploy
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            accordion_vllm_params
         )
+
+        # btn_dl.click(
+        #     lambda: gr.update(
+        #         label="Downloading ...",
+        #         visible=True), 
+        #     None, 
+        #     output,
+        #     concurrency_limit=15
+        # ).then(
+        #     lambda: gr.Timer(active=True), 
+        #     None, 
+        #     timer_dl,
+        #     concurrency_limit=15
+        # ).then(
+        #     download_info, 
+        #     selected_model_size, 
+        #     output,
+        #     concurrency_limit=15
+        # ).then(
+        #     download_from_hf_hub, 
+        #     model_dropdown, 
+        #     concurrency_limit=15
+        # ).then(
+        #     lambda: gr.Timer(active=False), 
+        #     None, 
+        #     timer_dl,
+        #     concurrency_limit=15
+        # ).then(
+        #     lambda: gr.update(label="Download finished!"), 
+        #     None, 
+        #     output,
+        #     concurrency_limit=15
+        # ).then(
+        #     lambda: gr.update(visible=True), 
+        #     None, 
+        #     btn_interface,
+        #     concurrency_limit=15
+        # ).then(
+        #     lambda: gr.update(visible=True), 
+        #     None, 
+        #     btn_interface,
+        #     concurrency_limit=15
+        # )
+
+        # btn_deploy = gr.Button("Deploy", visible=True)
+        # btn_deploy.click(
+        #     lambda: gr.update(label="Building vLLM container",visible=True), 
+        #     None, 
+        #     output
+        # ).then(
+        #     docker_api_create,
+        #     [model_dropdown,selected_model_pipeline_tag,port_model,port_vllm],
+        #     output
+        # ).then(
+        #     refresh_container,
+        #     None,
+        #     [container_state]
+        # ).then(
+        #     lambda: gr.Timer(active=True), 
+        #     None, 
+        #     timer_dl
+        # ).then(
+        #     lambda: gr.update(visible=True), 
+        #     None, 
+        #     btn_interface
+        # )
 
 
 
