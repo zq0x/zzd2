@@ -1023,6 +1023,7 @@ class PromptComponents:
     top_p: gr.Slider
     temperature: gr.Slider
     gpu_memory_utilization: gr.Slider
+    max_tokens: gr.Slider
     
     def to_list(self) -> list:
         return [getattr(self, f.name) for f in fields(self)]
@@ -1033,6 +1034,7 @@ class PromptValues:
     top_p: int
     temperature: int
     gpu_memory_utilization: int
+    max_tokens: int
 
 
 
@@ -1690,7 +1692,7 @@ def create_app():
         prompt_btn.click(
             llm_generate,
             llm_generate_components.to_list(),
-            [output]
+            [prompt_out]
         )
 
 
