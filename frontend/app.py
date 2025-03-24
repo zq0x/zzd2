@@ -900,7 +900,6 @@ def refresh_container():
 
 @dataclass
 class VllmInputComponents:
-    model_id: gr.Textbox
     max_model_len: gr.Slider
     tensor_parallel_size: gr.Number
     gpu_memory_utilization: gr.Slider
@@ -909,8 +908,7 @@ class VllmInputComponents:
         return [getattr(self, f.name) for f in fields(self)]
 
 @dataclass
-class VllmInputValues:    
-    model_id: str
+class VllmInputValues:
     max_model_len: int
     tensor_parallel_size: int
     gpu_memory_utilization: int
