@@ -1134,8 +1134,8 @@ def load_vllm_running3(*params):
         global GLOBAL_SELECTED_MODEL_ID
         print(f' >>> load_vllm_running GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         print(f' >>> load_vllm_running got params: {params} ')
-        logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        logging.exception(f'[load_vllm_running] >> got params: {params} ')
+        logging.info(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.info(f'[load_vllm_running] >> got params: {params} ')
                 
         req_params = VllmInputValues(*params)
 
@@ -1150,13 +1150,13 @@ def load_vllm_running3(*params):
 
         if response.status_code == 200:
             print(f' !?!?!?!? got response == 200 building json ... {response} ')
-            logging.exception(f'!?!?!?!? got response == 200 building json ...  {response} ')
+            logging.info(f'!?!?!?!? got response == 200 building json ...  {response} ')
             res_json = response.json()        
             print(f' !?!?!?!? GOT RES_JSON: load_vllm_running GLOBAL_SELECTED_MODEL_ID: {res_json} ')
-            logging.exception(f'!?!?!?!? GOT RES_JSON: {res_json} ')          
+            logging.info(f'!?!?!?!? GOT RES_JSON: {res_json} ')          
             return f'{res_json}'
         else:
-            logging.exception(f'[load_vllm_running] Request Error: {response}')
+            logging.info(f'[load_vllm_running] Request Error: {response}')
             return f'Request Error: {response}'
     
     except Exception as e:
@@ -1245,8 +1245,8 @@ def llm_generate(*params):
         global GLOBAL_SELECTED_MODEL_ID
         print(f' >>> llm_generate GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         print(f' >>> llm_generate got params: {params} ')
-        logging.exception(f'[llm_generate] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        logging.exception(f'[llm_generate] >> got params: {params} ')
+        logging.info(f'[llm_generate] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.info(f'[llm_generate] >> got params: {params} ')
 
         req_params = PromptComponents(*params)
 
@@ -1267,10 +1267,10 @@ def llm_generate(*params):
 
         if response.status_code == 200:
             print(f' !?!?!?!? [llm_generate] got response == 200 building json ... {response} ')
-            logging.exception(f'!?!?!?!? [llm_generate] got response == 200 building json ...  {response} ')
+            logging.info(f'!?!?!?!? [llm_generate] got response == 200 building json ...  {response} ')
             res_json = response.json()        
             print(f' !?!?!?!? [llm_generate] GOT RES_JSON: llm_generate GLOBAL_SELECTED_MODEL_ID: {res_json} ')
-            logging.exception(f'!?!?!?!? [llm_generate] GOT RES_JSON: {res_json} ')          
+            logging.info(f'!?!?!?!? [llm_generate] GOT RES_JSON: {res_json} ')          
             return f'{res_json}'
         else:
             logging.exception(f'[llm_generate] Request Error: {response}')

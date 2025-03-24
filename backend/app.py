@@ -692,20 +692,18 @@ async def docker_rest(request: Request):
             print(f'got test!')
             print("req_data")
             print(req_data)
-            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>>')
-            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>> req_data["max_model_len"] {req_data["max_model_len"]}')
+            print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>>')
+            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>> ')
             
             print("trying request vllm")
-            print(req_data["model_id"])
-            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>> trying request vllm ...] {req_data["model_id"]}')
             VLLM_URL = f'http://container_vllm:{os.getenv("VLLM_PORT")}/vllmt'
             try:
                 response = requests.post(VLLM_URL, json={
                     "req_type":"generate",
-                    "max_model_len":int(req_data["max_model_len"]),
-                    "tensor_parallel_size":int(req_data["tensor_parallel_size"]),
-                    "gpu_memory_utilization":float(req_data["gpu_memory_utilization"]),
-                    "model":str(req_data["model_id"])
+                    "prompt":req_data["prompt"],
+                    "temperature":float(req_data["temperature"]),
+                    "top_p":float(req_data["top_p"]),
+                    "max_tokens":int(req_data["max_tokens"])
                 })
                 if response.status_code == 200:
                     logging.info(f' [dockerrest]  status_code: {response.status_code}') 
@@ -715,7 +713,7 @@ async def docker_rest(request: Request):
                     return response_json["result_data"]                
                 else:
                     logging.info(f' [dockerrest] response: {response}')
-                    return JSONResponse({"result_status": 500, "result_data": f'ERRRR'})
+                    return JSONResponse({"result_status": 500, "result_data": f'ERRRR response.status_code {response.status_code} response{response}'})
             
             except Exception as e:
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
