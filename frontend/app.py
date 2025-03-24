@@ -574,6 +574,12 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     global GLOBAL_MEM_FREE
     
     
+    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
+    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
+    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
+    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
+    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
+    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
     
     if selected_model_id == '':
         return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
@@ -762,6 +768,12 @@ def gpu_to_pd():
     global GLOBAL_MEM_USED
     global GLOBAL_MEM_FREE
     rows = []
+    print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_TOTAL}')
+    logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_TOTAL}')
+    print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_USED}')
+    logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_USED}')
+    print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_FREE}')
+    logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_FREE}')
     try:
         gpu_list = get_gpu_data()
         GLOBAL_MEM_TOTAL = 0
@@ -769,12 +781,34 @@ def gpu_to_pd():
         GLOBAL_MEM_FREE = 0
         for entry in gpu_list:
             gpu_info = ast.literal_eval(entry['gpu_info'])
+            
+            print(f' **>>> gpu_to_pd >> 1 >> {gpu_info}')
+            logging.info(f' **>>> gpu_to_pd >> 1 >> {gpu_info}')
+            print(f' **>>> gpu_to_pd >> 1 >> res_mem_total {gpu_info["res_mem_total"]}')
+            logging.info(f' **>>> gpu_to_pd >> 1 >>  res_mem_total {gpu_info["res_mem_total"]}')
+            print(f' **>>> gpu_to_pd >> 1 >> res_mem_used {gpu_info["res_mem_used"]}')
+            logging.info(f' **>>> gpu_to_pd >> 1 >>  res_mem_used {gpu_info["res_mem_used"]}')
+            print(f' **>>> gpu_to_pd >> 1 >> res_mem_free {gpu_info["res_mem_free"]}')
+            logging.info(f' **>>> gpu_to_pd >> 1 >>  res_mem_free {gpu_info["res_mem_free"]}')
+            
             current_gpu_mem_total = gpu_info.get("res_mem_total", "0")
             current_gpu_mem_used = gpu_info.get("res_mem_used", "0")
             current_gpu_mem_free = gpu_info.get("res_mem_free", "0")
             GLOBAL_MEM_TOTAL = float(GLOBAL_MEM_TOTAL) + float(current_gpu_mem_total)
             GLOBAL_MEM_USED = float(GLOBAL_MEM_USED) + float(current_gpu_mem_used)
             GLOBAL_MEM_FREE = float(GLOBAL_MEM_FREE) + float(current_gpu_mem_free)
+            
+            
+            print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
+            logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
+            
+            print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
+            logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
+            
+            print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
+            logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
+
+            
             rows.append({                
                 "current_uuid": gpu_info.get("current_uuid", "0"),
                 "gpu_i": entry.get("gpu_i", "0"),
