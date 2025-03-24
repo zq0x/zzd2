@@ -996,6 +996,80 @@ def toggle_vllm_create_engine_arguments(vllm_list):
         gr.Button(visible=False)
     )
 
+def load_vllm_running3(*params):
+    
+    try:
+        global GLOBAL_SELECTED_MODEL_ID
+        print(f' >>> load_vllm_running GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        print(f' >>> load_vllm_running got params: {params} ')
+        logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.exception(f'[load_vllm_running] >> got params: {params} ')
+                
+        req_params = VllmInputValues(*params)
+
+
+        response = requests.post(BACKEND_URL, json={
+            "req_method":"cleartorch",
+            "model_id":GLOBAL_SELECTED_MODEL_ID,
+            "max_model_len":req_params.max_model_len,
+            "tensor_parallel_size":req_params.tensor_parallel_size,
+            "gpu_memory_utilization":req_params.gpu_memory_utilization
+        }, timeout=REQUEST_TIMEOUT)
+
+        if response.status_code == 200:
+            print(f' !?!?!?!? got response == 200 building json ... {response} ')
+            logging.exception(f'!?!?!?!? got response == 200 building json ...  {response} ')
+            res_json = response.json()        
+            print(f' !?!?!?!? GOT RES_JSON: load_vllm_running GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+            logging.exception(f'!?!?!?!? GOT RES_JSON: {res_json} ')          
+            return f'{res_json}'
+        else:
+            logging.exception(f'[load_vllm_running] Request Error: {response}')
+            return f'Request Error: {response}'
+    
+    except Exception as e:
+        logging.exception(f'Exception occured: {e}', exc_info=True)
+        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
+        return f'{e}'
+    
+    
+def load_vllm_running2(*params):
+    
+    try:
+        global GLOBAL_SELECTED_MODEL_ID
+        print(f' >>> load_vllm_running GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        print(f' >>> load_vllm_running got params: {params} ')
+        logging.exception(f'[load_vllm_running] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.exception(f'[load_vllm_running] >> got params: {params} ')
+                
+        req_params = VllmInputValues(*params)
+
+
+        response = requests.post(BACKEND_URL, json={
+            "req_method":"cleartensorflow",
+            "model_id":GLOBAL_SELECTED_MODEL_ID,
+            "max_model_len":req_params.max_model_len,
+            "tensor_parallel_size":req_params.tensor_parallel_size,
+            "gpu_memory_utilization":req_params.gpu_memory_utilization
+        }, timeout=REQUEST_TIMEOUT)
+
+        if response.status_code == 200:
+            print(f' !?!?!?!? got response == 200 building json ... {response} ')
+            logging.exception(f'!?!?!?!? got response == 200 building json ...  {response} ')
+            res_json = response.json()        
+            print(f' !?!?!?!? GOT RES_JSON: load_vllm_running GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+            logging.exception(f'!?!?!?!? GOT RES_JSON: {res_json} ')          
+            return f'{res_json}'
+        else:
+            logging.exception(f'[load_vllm_running] Request Error: {response}')
+            return f'Request Error: {response}'
+    
+    except Exception as e:
+        logging.exception(f'Exception occured: {e}', exc_info=True)
+        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
+        return f'{e}'
+    
+    
 def load_vllm_running(*params):
     
     try:
@@ -1264,6 +1338,8 @@ def create_app():
                     )
             with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
                 btn_vllm_running = gr.Button("DEPLOY", visible=True)
+                btn_vllm_running2 = gr.Button("CLEAR TENSORFLOW", visible=True)
+                btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
 
         gpu_dataframe = gr.Dataframe(label="GPU information")
         gpu_timer = gr.Timer(1,active=True)
@@ -1432,6 +1508,23 @@ def create_app():
             lambda: gr.update(open=False), 
             None, 
             accordion_vllm_params
+        )
+
+
+
+        
+        btn_vllm_running2.click(
+            load_vllm_running2,
+            vllm_input_components.to_list(),
+            [output]
+        )
+
+
+        
+        btn_vllm_running3.click(
+            load_vllm_running3,
+            vllm_input_components.to_list(),
+            [output]
         )
 
 
