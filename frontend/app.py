@@ -1494,14 +1494,19 @@ def create_app():
         with gr.Row(visible=True) as output_column_model_actions:
             with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
-                download_info_output = gr.Textbox(label="Download Info Output", show_label=True, visible=True) 
                 with gr.Accordion(("vLLM Parameters"), open=False, visible=False) as accordion_vllm_params:
                     vllm_input_components = VllmInputComponents(
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
-
+                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_llm_generate:
+                    llm_generate_components = PromptComponents(
+                        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
+                        top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
+                        temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
+                        max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
+                    )  
 
             with gr.Column(scale=1) as btn_column_model_actions:
                 btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
@@ -1509,6 +1514,7 @@ def create_app():
                     btn_vllm_running = gr.Button("DEPLOY")
                     btn_vllm_running2 = gr.Button("CLEAR NVIDIA SMI")
                     # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
+                    prompt_btn = gr.Button("GENERATE", visible=True)
 
 
 
@@ -1517,21 +1523,6 @@ def create_app():
         gpu_timer.tick(gpu_to_pd, outputs=gpu_dataframe)
         
         
-        
-        with gr.Row(visible=True) as generate_row:
-            with gr.Column(scale=4):
-                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_llm_generate:
-                    llm_generate_components = PromptComponents(
-                        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
-                        top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
-                        temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
-                        max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
-                    )                
-                prompt_out = gr.Textbox(placeholder="Result will appear here", label="Output", show_label=True, visible=True)
-            with gr.Column(scale=1, visible=True) as accordion_llm_generate_btn:
-                prompt_btn = gr.Button("GENERATE", visible=True)
-        
-
         
 
         
@@ -1696,7 +1687,7 @@ def create_app():
         prompt_btn.click(
             llm_generate,
             llm_generate_components.to_list(),
-            [prompt_out]
+            [output]
         )
 
 
