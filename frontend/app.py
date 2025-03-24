@@ -232,7 +232,7 @@ def docker_api_logs(req_model):
     try:
         response = requests.post(f'http://container_backend:{os.getenv("BACKEND_PORT")}/dockerrest', json={"req_method":"logs","req_model":req_model})
         res_json = response.json()
-        return '\n'.join(res_json["result_data"])
+        return ''.join(res_json["result_data"])
     except Exception as e:
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
         return f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] error action stop'
@@ -358,10 +358,15 @@ def calculate_model_size(json_info): # to fix
         return 0
 
 
-def get_info(selected_id):    
-    global current_models_data    
-    global GLOBAL_SELECTED_MODEL_ID  
+def get_info(selected_id):
+    
+    print(f' @@@ [get_info] {selected_id}')
+    logging.info(f' @@@ [get_info] {selected_id}')   
+    global current_models_data
+    global GLOBAL_SELECTED_MODEL_ID
     GLOBAL_SELECTED_MODEL_ID = selected_id
+    print(f' @@@ [get_info] {selected_id} 2')
+    logging.info(f' @@@ [get_info] {selected_id} 2')  
     res_model_data = {
         "search_data" : "",
         "model_id" : selected_id,
@@ -371,11 +376,20 @@ def get_info(selected_id):
         "private" : "",
         "downloads" : ""
     }
+    print(f' @@@ [get_info] {selected_id} 3')
+    logging.info(f' @@@ [get_info] {selected_id} 3')  
     container_name = str(res_model_data["model_id"]).replace('/', '_')
+    print(f' @@@ [get_info] {selected_id} 4')
+    logging.info(f' @@@ [get_info] {selected_id} 4')  
     try:
+        print(f' @@@ [get_info] {selected_id} 5')
+        logging.info(f' @@@ [get_info] {selected_id} 5') 
         for item in current_models_data:
+            print(f' @@@ [get_info] {selected_id} 6')
+            logging.info(f' @@@ [get_info] {selected_id} 6') 
             if item['id'] == selected_id:
-                
+                print(f' @@@ [get_info] {selected_id} 7')
+                logging.info(f' @@@ [get_info] {selected_id} 7') 
                 res_model_data["search_data"] = item
                 
                 if "pipeline_tag" in item:
@@ -398,9 +412,19 @@ def get_info(selected_id):
                   
                 container_name = str(res_model_data["model_id"]).replace('/', '_')
                 
-                return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
+                print(f' @@@ [get_info] {selected_id} 8')
+                logging.info(f' @@@ [get_info] {selected_id} 8') 
                 
+                return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
+            else:
+                
+                print(f' @@@ [get_info] {selected_id} 9')
+                logging.info(f' @@@ [get_info] {selected_id} 9') 
+                
+                return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
     except Exception as e:
+        print(f' @@@ [get_info] {selected_id} 10')
+        logging.info(f' @@@ [get_info] {selected_id} 10') 
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
         return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
 
