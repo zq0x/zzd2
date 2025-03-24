@@ -2050,32 +2050,32 @@ def create_app():
 
 
 
-        btn_dl.click(
-            lambda: gr.update(label="Starting download ...", visible=True), 
-            None, 
-            output
-        ).then(
-            parallel_download, 
-            [selected_model_size, model_dropdown], 
-            output,
-            concurrency_limit=15
-        ).then(
-            lambda: gr.update(label="Download finished!"), 
-            None, 
-            output
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            btn_interface
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            row_deploy
-        ).then(
-            lambda: gr.update(visible=True), 
-            None, 
-            accordion_vllm_params
-        )
+        # btn_dl.click(
+        #     lambda: gr.update(label="Starting download ...", visible=True), 
+        #     None, 
+        #     output
+        # ).then(
+        #     parallel_download, 
+        #     [selected_model_size, model_dropdown], 
+        #     output,
+        #     concurrency_limit=15
+        # ).then(
+        #     lambda: gr.update(label="Download finished!"), 
+        #     None, 
+        #     output
+        # ).then(
+        #     lambda: gr.update(visible=True), 
+        #     None, 
+        #     btn_interface
+        # ).then(
+        #     lambda: gr.update(visible=True), 
+        #     None, 
+        #     row_deploy
+        # ).then(
+        #     lambda: gr.update(visible=True), 
+        #     None, 
+        #     accordion_vllm_params
+        # )
 
 
         btn_dl.click(
