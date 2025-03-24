@@ -1022,7 +1022,6 @@ class PromptComponents:
     prompt_in: gr.Textbox
     top_p: gr.Slider
     temperature: gr.Slider
-    gpu_memory_utilization: gr.Slider
     max_tokens: gr.Slider
     
     def to_list(self) -> list:
@@ -1033,7 +1032,6 @@ class PromptValues:
     prompt_in: str
     top_p: int
     temperature: int
-    gpu_memory_utilization: int
     max_tokens: int
 
 
