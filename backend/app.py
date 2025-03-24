@@ -18,7 +18,7 @@ import pynvml
 import psutil
 import logging
 import tensorflow as tf
-
+import gc
 
 FALLBACK_CONTAINER_STATS = {
     'name': '/error_container',
@@ -598,20 +598,46 @@ async def docker_rest(request: Request):
             print(f'got {req_data["req_method"]}!')
             print("req_data")
             print(req_data)
+            print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
             try:
-                # Run nvidia-smi to reset the GPU
-                os.system("nvidia-smi --gpu-reset")
-                print("GPU memory cleared using nvidia-smi.")
+                # Step 1: Clear PyTorch CUDA Cache
+                print("Clearing PyTorch CUDA Cache...")
+                gc.collect()  # Run garbage collector
+                torch.cuda.empty_cache()  # Clear cached memory
+
+                # Step 2: Terminate GPU processes
+                print("Terminating GPU-related processes...")
+                try:
+                    output = subprocess.check_output("nvidia-smi", shell=True, universal_newlines=True)
+                    # Parse and terminate processes using GPU
+                    for line in output.split("\n"):
+                        if "python" in line or "PID" in line:  # Look for relevant processes
+                            pid = line.split()[2]  # Assume PID is in the third column
+                            os.system(f"kill -9 {pid}")  # Kill the process
+                except Exception as e:
+                    print(f' ??????? 111 {req_data["req_method"]}  {e}')
+                    logging.info(f' ??????? 111 {req_data["req_method"]}  {e}')
+                    return JSONResponse({"result_status": 500, "result_data": f'{e}'})
+
+                # Step 3: Check GPU memory and status
+                print(f'Checking GPU memory status after cleanup...')
+                logging.info(f'Checking GPU memory status after cleanup...')
+                
+                print(f' ??????? 111 {os.system("nvidia-smi")} ')
+                logging.info(f' ??????? 111 {os.system("nvidia-smi")} ')
+                logging.info(f' ??????? 111 {os.system("nvidia-smi")} ')
+
             except Exception as e:
-                print(f' ??????? {req_data["req_method"]}  {e}')
-                logging.info(f' ??????? {req_data["req_method"]}  {e}')
+                print(f' ??????? 222 {req_data["req_method"]}  {e}')
+                logging.info(f' ??????? 222 {req_data["req_method"]}  {e}')
                 return JSONResponse({"result_status": 500, "result_data": f'{e}'})
                 
         if req_data["req_method"] == "cleartorch":
             print(f'got {req_data["req_method"]}!')
             print("req_data")
             print(req_data)
+            print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
 
             if torch.cuda.is_available():
