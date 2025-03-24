@@ -1028,7 +1028,7 @@ class PromptComponents:
         return [getattr(self, f.name) for f in fields(self)]
 
 @dataclass
-class GenerateValues:
+class PromptValues:
     prompt_in: str
     top_p: int
     temperature: int
