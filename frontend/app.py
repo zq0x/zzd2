@@ -1509,12 +1509,13 @@ def create_app():
                     )  
 
             with gr.Column(scale=1) as btn_column_model_actions:
-                btn_dl = gr.Button("DOWNLOAD", variant="primary", visible=True)
+                with gr.Row(visible=False) as row_download:
+                    btn_dl = gr.Button("DOWNLOAD", variant="primary")
                 with gr.Row(visible=False) as row_deploy:
                     btn_vllm_running = gr.Button("DEPLOY")
                     btn_vllm_running2 = gr.Button("CLEAR NVIDIA SMI")
                     # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
-                    prompt_btn = gr.Button("GENERATE", visible=True)
+                    prompt_btn = gr.Button("PROMPT", visible=True)
 
 
 
@@ -1527,7 +1528,13 @@ def create_app():
 
         
         
-        
+        with gr.Column(scale=4) as column_select_vllm_engine_arguments:
+            with gr.Row(visible=True):
+                vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
+
+        with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
+            vllm_running_engine_arguments_show = gr.Button("LOAD VLLM CREATEEEEEEEEUUUUHHHHHHHH", variant="primary")
+            vllm_running_engine_arguments_close = gr.Button("CANCEL")
                     
         with gr.Row(visible=False) as vllm_create_engine_arguments_row:
             with gr.Column(scale=4):
@@ -1544,7 +1551,7 @@ def create_app():
                         morning=gr.Checkbox(label="Morning", value=True, info="Did they do it in the morning?")
                     )
             with gr.Column(scale=1, visible=False) as vllm_engine_arguments_btn:
-                vllm_engine_arguments_show = gr.Button("GENERATE NEW VLLM", variant="primary")
+                vllm_engine_arguments_show = gr.Button("CREATE NEW VLLM", variant="primary")
                 vllm_engine_arguments_close = gr.Button("CANCEL")
                 
 
@@ -1557,13 +1564,7 @@ def create_app():
                 
                 
                 
-        with gr.Column(scale=4) as column_select_vllm_engine_arguments:
-            with gr.Row(visible=True):
-                vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
 
-        with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
-            vllm_running_engine_arguments_show = gr.Button("LOAD VLLM CREATEEEEEEEEUUUUHHHHHHHH", variant="primary")
-            vllm_running_engine_arguments_close = gr.Button("CANCEL")
 
          
         btn_interface = gr.Button("Load Interface",visible=False)
@@ -1635,7 +1636,7 @@ def create_app():
         ).then(
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
-            [output,btn_dl,accordion_vllm_params,btn_vllm_running]
+            [output,row_download,accordion_vllm_params,btn_vllm_running]
         )
 
 
@@ -2052,34 +2053,38 @@ def create_app():
         btn_dl.click(
             lambda: gr.update(
                 label="Starting download ...",
-                visible=True), 
-            None, 
+                visible=True),
+            None,
             output
         ).then(
             download_info, 
-            selected_model_size, 
+            selected_model_size,
             output,
             concurrency_limit=15
         ).then(
             download_from_hf_hub, 
-            model_dropdown, 
+            model_dropdown,
             output,
             concurrency_limit=15
         ).then(
-            lambda: gr.update(label="Download finished!"), 
-            None, 
+            lambda: gr.update(label="Download finished!"),
+            None,
             output
         ).then(
-            lambda: gr.update(visible=True), 
-            None, 
+            lambda: gr.update(visible=False),
+            None,
+            row_download
+        ).then(
+            lambda: gr.update(visible=True),
+            None,
             btn_interface
         ).then(
-            lambda: gr.update(visible=True), 
-            None, 
+            lambda: gr.update(visible=True),
+            None,
             row_deploy
         ).then(
-            lambda: gr.update(visible=True), 
-            None, 
+            lambda: gr.update(visible=True),
+            None,
             accordion_vllm_params
         )
 

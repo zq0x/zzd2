@@ -700,7 +700,7 @@ async def docker_rest(request: Request):
             try:
                 response = requests.post(VLLM_URL, json={
                     "req_type":"generate",
-                    "prompt":req_data["prompt"],
+                    "prompt":req_data["prompt_in"],
                     "temperature":float(req_data["temperature"]),
                     "top_p":float(req_data["top_p"]),
                     "max_tokens":int(req_data["max_tokens"])
