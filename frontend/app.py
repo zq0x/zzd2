@@ -232,7 +232,7 @@ def docker_api_logs(req_model):
     try:
         response = requests.post(f'http://container_backend:{os.getenv("BACKEND_PORT")}/dockerrest', json={"req_method":"logs","req_model":req_model})
         res_json = response.json()
-        return ''.join(res_json["result_data"])
+        return '\n'.join(res_json["result_data"])
     except Exception as e:
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
         return f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] error action stop'
@@ -974,14 +974,14 @@ def load_vllm_running(*params):
             "tensor_parallel_size":req_params.tensor_parallel_size,
             "gpu_memory_utilization":req_params.gpu_memory_utilization
         }, timeout=REQUEST_TIMEOUT)
-        res_json = response.json()
+
         if response.status_code == 200:
-            response_json = response.json()
-            if response_json["result_status"] != 200:
-                logging.exception(f'[load_vllm_running] Response Error: {res_json["result_data"]}')
-                return f'ERROR {res_json["result_data"]}'
-                
-            return f'{res_json["result_data"]}'
+            print(f' !?!?!?!? got response == 200 building json ... {response} ')
+            logging.exception(f'!?!?!?!? got response == 200 building json ...  {response} ')
+            res_json = response.json()        
+            print(f' !?!?!?!? GOT RES_JSON: load_vllm_running GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+            logging.exception(f'!?!?!?!? GOT RES_JSON: {res_json} ')          
+            return f'{res_json}'
         else:
             logging.exception(f'[load_vllm_running] Request Error: {response}')
             return f'Request Error: {response}'
@@ -989,7 +989,7 @@ def load_vllm_running(*params):
     except Exception as e:
         logging.exception(f'Exception occured: {e}', exc_info=True)
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
-        return e
+        return f'{e}'
     
     
     
@@ -1214,7 +1214,7 @@ def create_app():
 
         with gr.Row(visible=True) as vllm_running_engine_arguments_row:
             with gr.Column(scale=4):
-                with gr.Accordion(("vLLM Parameters"), open=True):
+                with gr.Accordion(("vLLM Parameters"), open=True) as accordion_vllm_params:
                     vllm_input_components = VllmInputComponents(
                         model_id=gr.Textbox(placeholder=f'{GLOBAL_SELECTED_MODEL_ID}', value=f'{GLOBAL_SELECTED_MODEL_ID}', label="model_id", info="Hugging Face Model ID"),
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
@@ -1224,6 +1224,9 @@ def create_app():
             with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
                 btn_vllm_running = gr.Button("DEPLOY", visible=True)
 
+        gpu_dataframe = gr.Dataframe(label="GPU information")
+        gpu_timer = gr.Timer(1,active=True)
+        gpu_timer.tick(gpu_to_pd, outputs=gpu_dataframe)
         
         with gr.Row():
             top_p = gr.Textbox(label="top_p", placeholder="0.95", value=0.95, visible=True)
@@ -1378,9 +1381,13 @@ def create_app():
 
 
 
-        
+
         
         btn_vllm_running.click(
+            lambda: gr.update(open=False), 
+            None, 
+            accordion_vllm_params
+        ).then(
             load_vllm_running,
             vllm_input_components.to_list(),
             [output]
@@ -1418,10 +1425,7 @@ def create_app():
         # prompt_btn.click(lambda model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in: vllm_api("generate", model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in), inputs=[model_dropdown, selected_model_pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in], outputs=prompt_out)
 
         
-        gpu_dataframe = gr.Dataframe(label="GPU information")
-        gpu_timer = gr.Timer(1,active=True)
-        gpu_timer.tick(gpu_to_pd, outputs=gpu_dataframe)
-        
+
         network_dataframe = gr.Dataframe(label="Network information")
         network_timer = gr.Timer(1,active=True)
         network_timer.tick(network_to_pd, outputs=network_dataframe)
@@ -1801,7 +1805,26 @@ def create_app():
         )
 
         btn_deploy = gr.Button("Deploy", visible=True)
-        btn_deploy.click(lambda: gr.update(label="Building vLLM container",visible=True), None, output).then(docker_api_create,inputs=[model_dropdown,selected_model_pipeline_tag,port_model,port_vllm],outputs=output).then(refresh_container, outputs=[container_state]).then(lambda: gr.Timer(active=True), None, timer_dl).then(lambda: gr.update(visible=True), None, btn_interface)
+        btn_deploy.click(
+            lambda: gr.update(label="Building vLLM container",visible=True), 
+            None, 
+            output
+        ).then(
+            docker_api_create,
+            [model_dropdown,selected_model_pipeline_tag,port_model,port_vllm],
+            outputs=output
+        ).then(
+            refresh_container, 
+            [container_state]
+        ).then(
+            lambda: gr.Timer(active=True), 
+            None, 
+            timer_dl
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            btn_interface
+        )
 
 
 
