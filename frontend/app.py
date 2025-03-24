@@ -2045,7 +2045,7 @@ def create_app():
         btn_dl.click(
             parallel_download, 
             [selected_model_size, model_dropdown], 
-            output,
+            None,
             concurrency_limit=15
         )
 
