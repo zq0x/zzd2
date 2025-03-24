@@ -132,6 +132,9 @@ vllm_supported_architectures = [
     "whisper"
 ]
 
+
+
+
 REQUEST_TIMEOUT = 300
 def wait_for_backend(backend_url, timeout=300):
     start_time = time.time()
@@ -152,6 +155,9 @@ current_models_data = []
 db_gpu_data = []
 db_gpu_data_len = ''
 GLOBAL_SELECTED_MODEL_ID = ''
+GLOBAL_MEM_TOTAL = 0
+GLOBAL_MEM_USED = 0
+GLOBAL_MEM_FREE = 0
 
 try:
     r = redis.Redis(host="redis", port=6379, db=0)
@@ -563,12 +569,37 @@ def get_additional_info(selected_id):
 
 def gr_load_check(selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization):
     
-    
+    global GLOBAL_MEM_TOTAL
+    global GLOBAL_MEM_USED
+    global GLOBAL_MEM_FREE
     
     
     
     if selected_model_id == '':
         return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] checking if enough memory size for selected model available ....  ...')
+    logging.info(f' ********* [gr_load_check] checking if enough memory size for selected model available .... ...')    
+    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
+    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL} ')    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
+    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED} ')    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
+    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE} ')
+    
+ 
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] selected_model_size {selected_model_size}')
+    logging.info(f' ********* [gr_load_check] selected_model_size {selected_model_size} ')
+    
+
+    # check model > size memory size
+    if float(selected_model_size) > float(GLOBAL_MEM_TOTAL):
+        return f'ERR: model size extends GPU memory! _[vLLM settings](https://docs.vllm.ai/en/latest/performance/optimization.html)_  ', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    
+    if float(selected_model_size) > float(GLOBAL_MEM_FREE):
+        return f'Please clear GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    
     
     global vllm_supported_architectures
     
@@ -725,13 +756,25 @@ def container_to_pd():
         df = pd.DataFrame(rows)
         return df
 
-def gpu_to_pd():       
+
+def gpu_to_pd():
+    global GLOBAL_MEM_TOTAL
+    global GLOBAL_MEM_USED
+    global GLOBAL_MEM_FREE
     rows = []
     try:
         gpu_list = get_gpu_data()
-        # logging.info(f'[gpu_to_pd] gpu_list: {gpu_list}')  # Use logging.info instead of logging.exception
+        GLOBAL_MEM_TOTAL = 0
+        GLOBAL_MEM_USED = 0
+        GLOBAL_MEM_FREE = 0
         for entry in gpu_list:
-            gpu_info = ast.literal_eval(entry['gpu_info'])  # Parse the string into a dictionary
+            gpu_info = ast.literal_eval(entry['gpu_info'])
+            current_gpu_mem_total = gpu_info.get("res_mem_total", "0")
+            current_gpu_mem_used = gpu_info.get("res_mem_used", "0")
+            current_gpu_mem_free = gpu_info.get("res_mem_free", "0")
+            GLOBAL_MEM_TOTAL = float(GLOBAL_MEM_TOTAL) + float(current_gpu_mem_total)
+            GLOBAL_MEM_USED = float(GLOBAL_MEM_USED) + float(current_gpu_mem_used)
+            GLOBAL_MEM_FREE = float(GLOBAL_MEM_FREE) + float(current_gpu_mem_free)
             rows.append({                
                 "current_uuid": gpu_info.get("current_uuid", "0"),
                 "gpu_i": entry.get("gpu_i", "0"),
