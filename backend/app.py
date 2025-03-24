@@ -17,7 +17,7 @@ from contextlib import asynccontextmanager
 import pynvml
 import psutil
 import logging
-
+import tensorflow as tf
 
 
 FALLBACK_CONTAINER_STATS = {
@@ -594,6 +594,54 @@ async def docker_rest(request: Request):
     try:
         req_data = await request.json()
                 
+        if req_data["req_method"] == "cleartensorflow":
+            print(f'got {req_data["req_method"]}!')
+            print("req_data")
+            print(req_data)
+            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
+
+            gpus = tf.config.experimental.list_physical_devices('GPU')
+            if gpus:
+                try:
+                    for gpu in gpus:
+                        tf.config.experimental.set_memory_growth(gpu, True)
+                    tf.keras.backend.clear_session()
+                    tf.compat.v1.reset_default_graph()
+                    
+                    print(f' ??????? {req_data["req_method"]}  TENSORFLOW SUCCESS')
+                    logging.info(f' ??????? {req_data["req_method"]}  TENSORFLOW SUCCESS')
+                    return JSONResponse({"result_status": 200, "result_data": f'cache emptied {req_data["req_method"]} success!'})
+                except RuntimeError as e:
+                    print(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 1')
+                    logging.info(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 1')
+                    return JSONResponse({"result_status": 500, "result_data": f'tensorflow no GPUS found ???? 1'})
+          
+            else:
+                print(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 2')
+                logging.info(f' ??????? {req_data["req_method"]}  tensorflow no GPUS found ???? 2')
+                return JSONResponse({"result_status": 500, "result_data": f'tensorflow no GPUS found ???? 2'})
+                
+        if req_data["req_method"] == "cleartorch":
+            print(f'got {req_data["req_method"]}!')
+            print("req_data")
+            print(req_data)
+            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
+
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                torch.cuda.reset_peak_memory_stats()
+                torch.cuda.synchronize()
+                
+                print(f' ??????? {req_data["req_method"]}  torch.cuda.SUCCESS')
+                logging.info(f' ??????? {req_data["req_method"]}  torch.cuda.SUCCESS')
+                return JSONResponse({"result_status": 200, "result_data": f'cache emptied {req_data["req_method"]} success!'})
+          
+            else:
+                print(f' ??????? {req_data["req_method"]}  torch.cuda.is_available(): NOT AVAILABLEEE')
+                logging.info(f' ??????? {req_data["req_method"]}  torch.cuda.is_available(): NOT AVAILABLEEE')
+                return JSONResponse({"result_status": 500, "result_data": f'torch.cuda.is_available(): NOT AVAILABLEE'})
+
+                         
         if req_data["req_method"] == "test":
             print(f'got test!')
             print("req_data")
@@ -626,10 +674,7 @@ async def docker_rest(request: Request):
             except Exception as e:
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
                 return f'err {str(e)}'
-        
-        
-            return JSONResponse({"result_status": 200, "result_data": f'{req_data["max_model_len"]}'})
-                
+           
         if req_data["req_method"] == "logs":
             req_container = client.containers.get(req_data["req_model"])
             res_logs = req_container.logs()

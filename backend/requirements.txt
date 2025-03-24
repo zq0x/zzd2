@@ -6,3 +6,4 @@ pynvml
 psutil
 numpy
 torch
+tensorflow

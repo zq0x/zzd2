@@ -1256,7 +1256,7 @@ def create_app():
 
         with gr.Row(visible=True) as vllm_running_engine_arguments_row:
             with gr.Column(scale=4):
-                with gr.Accordion(("vLLM Parameters"), open=True) as accordion_vllm_params:
+                with gr.Accordion(("vLLM Parameters"), open=False) as accordion_vllm_params:
                     vllm_input_components = VllmInputComponents(
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
