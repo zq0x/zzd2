@@ -698,12 +698,16 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     
     
     # check model > size memory size
-    if float(selected_model_size) > float(GLOBAL_MEM_TOTAL):
+    if float(selected_model_size) > (float(GLOBAL_MEM_TOTAL.split()[0])*1024**2):
+        print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 444')
+        logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 444')
         return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_TOTAL.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
         # return f'ERR: model size extends GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
     
-    if float(selected_model_size) > float(GLOBAL_MEM_FREE):
-        return f'Please clear GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    if float(selected_model_size) > (float(GLOBAL_MEM_FREE.split()[0])*1024**2):
+        print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 555')
+        logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 555')
+        return f'Please clear GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_FREE.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
     
     
 
