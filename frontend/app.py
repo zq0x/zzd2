@@ -131,6 +131,7 @@ vllm_supported_architectures = [
     "llavanextforconditionalgeneration",
     "phi3vforcausallm",
     "qwen2vlforconditionalgeneration",
+    "zamba2forcausallm",
     "whisper"
 ]
 
@@ -1157,7 +1158,7 @@ def load_vllm_running2(*params):
 
 
         response = requests.post(BACKEND_URL, json={
-            "req_method":"clearpynvml",
+            "req_method":"clearsmi",
             "model_id":GLOBAL_SELECTED_MODEL_ID,
             "max_model_len":req_params.max_model_len,
             "tensor_parallel_size":req_params.tensor_parallel_size,
@@ -1449,7 +1450,7 @@ def create_app():
                     )
             with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
                 btn_vllm_running = gr.Button("DEPLOY", visible=True)
-                btn_vllm_running2 = gr.Button("CLEAR PYNVML", visible=True)
+                btn_vllm_running2 = gr.Button("CLEAR NVIDIA SMI", visible=True)
                 btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
 
         gpu_dataframe = gr.Dataframe(label="GPU information")

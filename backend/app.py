@@ -594,31 +594,16 @@ async def docker_rest(request: Request):
     try:
         req_data = await request.json()
                 
-        if req_data["req_method"] == "clearpynvml":
+        if req_data["req_method"] == "clearsmi":
             print(f'got {req_data["req_method"]}!')
             print("req_data")
             print(req_data)
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
             try:
-                device_count = pynvml.nvmlDeviceGetCount()
-
-                for i in range(device_count):
-
-                    handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-                    gpu_name = pynvml.nvmlDeviceGetName(handle)
-                    print(f"")
-                    print(f' ??????? {req_data["req_method"]}  Clearing memory for GPU {i}: {gpu_name}')
-                    logging.info(f' ??????? {req_data["req_method"]}  Clearing memory for GPU {i}: {gpu_name}')
-
-                    pynvml.nvmlDeviceSetApplicationsClocks(handle, pynvml.NVML_CLOCK_GRAPHICS, pynvml.NVML_CLOCK_GRAPHICS)
-                    pynvml.nvmlDeviceResetGpu(handle)
-
-                    print(f' ??????? {req_data["req_method"]}GPU {i} memory cleared and reset.')
-                    logging.info(f' ??????? {req_data["req_method"]}GPU {i} memory cleared and reset.')
-                    
-                
-          
-            except pynvml.NVMLError as e:
+                # Run nvidia-smi to reset the GPU
+                os.system("nvidia-smi --gpu-reset")
+                print("GPU memory cleared using nvidia-smi.")
+            except Exception as e:
                 print(f' ??????? {req_data["req_method"]}  {e}')
                 logging.info(f' ??????? {req_data["req_method"]}  {e}')
                 return JSONResponse({"result_status": 500, "result_data": f'{e}'})
