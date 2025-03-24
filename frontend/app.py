@@ -389,6 +389,10 @@ def get_info(selected_id):
     container_name = str(res_model_data["model_id"]).replace('/', '_')
     print(f' @@@ [get_info] {selected_id} 4')
     logging.info(f' @@@ [get_info] {selected_id} 4')  
+    if len(current_models_data) < 1:
+        print(f' @@@ [get_info] len(current_models_data) < 1! RETURN ')
+        logging.info(f' @@@ [get_info] len(current_models_data) < 1! RETURN ') 
+        return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
     try:
         print(f' @@@ [get_info] {selected_id} 5')
         logging.info(f' @@@ [get_info] {selected_id} 5') 
