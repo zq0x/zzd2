@@ -373,7 +373,7 @@ def get_info(selected_id):
         "downloads" : ""
     }
     
-    if selected_id == '':
+    if selected_id == None:
         print(f' @@@ [get_info] selected_id NOT FOUND!! RETURN ')
         logging.info(f' @@@ [get_info] selected_id NOT FOUND!! RETURN ') 
         return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
