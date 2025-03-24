@@ -1250,13 +1250,19 @@ def llm_generate(*params):
 
         req_params = PromptComponents(*params)
 
+        DEFAULTS_PROMPT = {
+            "prompt_in": "Tell a joke",
+            "top_p": 0.95,
+            "temperature": 0.8,
+            "max_tokens": 150
+        }
 
         response = requests.post(BACKEND_URL, json={
             "req_method":"generate",
-            "prompt_in":req_params.get("prompt_in", "Tell a joke"),
-            "top_p":req_params.get("top_p", 0.95),
-            "temperature":req_params.get("temperature", 0.8),
-            "max_tokens":req_params.get("max_tokens", 150)
+            "prompt_in": getattr(req_params, "prompt_in", DEFAULTS_PROMPT["prompt_in"]),
+            "top_p":getattr(req_params, "top_p", DEFAULTS_PROMPT["top_p"]),
+            "temperature":getattr(req_params, "temperature", DEFAULTS_PROMPT["temperature"]),
+            "max_tokens":getattr(req_params, "max_tokens", DEFAULTS_PROMPT["max_tokens"])
         }, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 200:
@@ -1519,7 +1525,7 @@ def create_app():
                         prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
                         top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
                         temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
-                        max_tokens=gr.Slider(50, 5000, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
+                        max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
                     )                
                 prompt_out = gr.Textbox(placeholder="Result will appear here", label="Output", show_label=True, visible=True)
             with gr.Column(scale=1, visible=True) as accordion_llm_generate_btn:
