@@ -82,6 +82,8 @@ vllm_supported_architectures = [
     "starcoder2forcausallm",
     "solarforcausallm",
     "telechat2forcausallm",
+    "teleflmmodel",    
+    "teleflmforcausallm",    
     "xverseforcausallm",
     "bertmodel",
     "gemma2model",
@@ -637,7 +639,7 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
             return f'Selected model architecture is not supported by vLLM and has no transformers', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)     
     
     if selected_model_pipeline_tag == '':
-        return f'Selected model has no pipeline tag', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+        return f'Selected model has no pipeline tag', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
             
     if selected_model_pipeline_tag not in ["text-generation","automatic-speech-recognition"]:
         return f'Only "text-generation" and "automatic-speech-recognition" models supported', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
@@ -658,62 +660,62 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
 
 
     
-    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
-    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
-    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
-    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
-    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
-    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
+    # print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
+    # logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
+    # print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
+    # logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
+    # print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
+    # logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
     
-    if selected_model_id == '':
-        return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
-    
-    
-    
-    
-    print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net')
-    logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net')
+    # if selected_model_id == '':
+    #     return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
     
     
     
     
+    # print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net')
+    # logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net')
     
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] checking if enough memory size for selected model available ....  ...')
-    logging.info(f' ********* [gr_load_check] checking if enough memory size for selected model available .... ...')    
     
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
-    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL} ')    
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
-    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED} ')    
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
-    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE} ')
+    
+    
+    
+    # print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] checking if enough memory size for selected model available ....  ...')
+    # logging.info(f' ********* [gr_load_check] checking if enough memory size for selected model available .... ...')    
+    
+    # print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
+    # logging.info(f' ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL} ')    
+    # print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
+    # logging.info(f' ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED} ')    
+    # print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
+    # logging.info(f' ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE} ')
     
  
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] selected_model_size {selected_model_size}')
-    logging.info(f' ********* [gr_load_check] selected_model_size {selected_model_size} ')
+    # print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] selected_model_size {selected_model_size}')
+    # logging.info(f' ********* [gr_load_check] selected_model_size {selected_model_size} ')
     
     
-    print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 2')
-    logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 2')
+    # print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 2')
+    # logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 2')
     
     
-    # check model > size memory size
-    if float(selected_model_size) > (float(GLOBAL_MEM_TOTAL.split()[0])*1024**2):
-        print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 444')
-        logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 444')
-        return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_TOTAL.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
-        # return f'ERR: model size extends GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    # # check model > size memory size
+    # if float(selected_model_size) > (float(GLOBAL_MEM_TOTAL.split()[0])*1024**2):
+    #     print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 444')
+    #     logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 444')
+    #     return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_TOTAL.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+    #     # return f'ERR: model size extends GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
     
-    if float(selected_model_size) > (float(GLOBAL_MEM_FREE.split()[0])*1024**2):
-        print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 555')
-        logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 555')
-        return f'Please clear GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_FREE.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+    # if float(selected_model_size) > (float(GLOBAL_MEM_FREE.split()[0])*1024**2):
+    #     print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 555')
+    #     logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 555')
+    #     return f'Please clear GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_FREE.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
     
     
 
     
-    print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 3 ')
-    logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 3')
+    # print(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 3 ')
+    # logging.info(f' HÄÄÄÄÄÄÄÄÄ bis hier oder net 3')
     
     
 
