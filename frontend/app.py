@@ -573,41 +573,7 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     global GLOBAL_MEM_USED
     global GLOBAL_MEM_FREE
     
-    
-    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
-    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
-    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
-    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
-    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
-    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
-    
-    if selected_model_id == '':
-        return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
-    
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] checking if enough memory size for selected model available ....  ...')
-    logging.info(f' ********* [gr_load_check] checking if enough memory size for selected model available .... ...')    
-    
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
-    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL} ')    
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
-    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED} ')    
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
-    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE} ')
-    
- 
-    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] selected_model_size {selected_model_size}')
-    logging.info(f' ********* [gr_load_check] selected_model_size {selected_model_size} ')
-    
 
-    # check model > size memory size
-    if float(selected_model_size) > float(GLOBAL_MEM_TOTAL):
-        return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float('12288.00 MB'.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
-        # return f'ERR: model size extends GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
-    
-    if float(selected_model_size) > float(GLOBAL_MEM_FREE):
-        return f'Please clear GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
-    
-    
     global vllm_supported_architectures
     
     
@@ -687,6 +653,49 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
         
     if selected_model_size == '0':        
         return f'Selected model has no size', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+
+
+
+
+    
+    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
+    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_TOTAL}')
+    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
+    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_USED}')
+    print(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
+    logging.info(f' **>>> gr_load_check !! !! !! >> 0 >> {GLOBAL_MEM_FREE}')
+    
+    if selected_model_id == '':
+        return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] checking if enough memory size for selected model available ....  ...')
+    logging.info(f' ********* [gr_load_check] checking if enough memory size for selected model available .... ...')    
+    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
+    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL} ')    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
+    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_USED {GLOBAL_MEM_USED} ')    
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
+    logging.info(f' ********* [gr_load_check] GLOBAL_MEM_FREE {GLOBAL_MEM_FREE} ')
+    
+ 
+    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] ********* [gr_load_check] selected_model_size {selected_model_size}')
+    logging.info(f' ********* [gr_load_check] selected_model_size {selected_model_size} ')
+    
+
+    # check model > size memory size
+    if float(selected_model_size) > float(GLOBAL_MEM_TOTAL):
+        return f'ERR: model size extends GPU memory! {float(selected_model_size)}/{(float(GLOBAL_MEM_TOTAL.split()[0])*1024**2)} ', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+        # return f'ERR: model size extends GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    
+    if float(selected_model_size) > float(GLOBAL_MEM_FREE):
+        return f'Please clear GPU memory!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+    
+    
+
+
+
+
 
     return f'Selected model is supported by vLLM!', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
 
@@ -795,11 +804,11 @@ def gpu_to_pd():
             current_gpu_mem_total = gpu_info.get("mem_total", "0")
             current_gpu_mem_used = gpu_info.get("mem_used", "0")
             current_gpu_mem_free = gpu_info.get("mem_free", "0")
-            GLOBAL_MEM_TOTAL = float(GLOBAL_MEM_TOTAL) + float(current_gpu_mem_total)
-            GLOBAL_MEM_USED = float(GLOBAL_MEM_USED) + float(current_gpu_mem_used)
-            GLOBAL_MEM_FREE = float(GLOBAL_MEM_FREE) + float(current_gpu_mem_free)
+            GLOBAL_MEM_TOTAL = float(GLOBAL_MEM_TOTAL) + float(current_gpu_mem_total.split()[0])
+            GLOBAL_MEM_USED = float(GLOBAL_MEM_USED) + float(current_gpu_mem_used.split()[0])
+            GLOBAL_MEM_FREE = float(GLOBAL_MEM_FREE) + float(current_gpu_mem_free.split()[0])
             
-            
+
             print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
             logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
             
