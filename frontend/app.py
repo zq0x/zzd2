@@ -371,7 +371,7 @@ def get_info(selected_id):
         "private" : "",
         "downloads" : ""
     }
-
+    container_name = str(res_model_data["model_id"]).replace('/', '_')
     try:
         for item in current_models_data:
             if item['id'] == selected_id:
@@ -402,7 +402,7 @@ def get_info(selected_id):
                 
     except Exception as e:
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
-        return res_model_data["search_data"], res_model_data["model_id"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"]
+        return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
 
 def get_additional_info(selected_id):    
         res_model_data = {
@@ -1384,13 +1384,13 @@ def create_app():
 
         
         btn_vllm_running.click(
-            lambda: gr.update(open=False), 
-            None, 
-            accordion_vllm_params
-        ).then(
             load_vllm_running,
             vllm_input_components.to_list(),
             [output]
+        ).then(
+            lambda: gr.update(open=False), 
+            None, 
+            accordion_vllm_params
         )
 
 
@@ -1812,9 +1812,10 @@ def create_app():
         ).then(
             docker_api_create,
             [model_dropdown,selected_model_pipeline_tag,port_model,port_vllm],
-            outputs=output
+            output
         ).then(
-            refresh_container, 
+            refresh_container,
+            None,
             [container_state]
         ).then(
             lambda: gr.Timer(active=True), 
