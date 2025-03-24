@@ -1039,18 +1039,18 @@ class PromptValues:
 
 @dataclass
 class VllmCreateInputComponents:
-    max_model_len: gr.Slider
-    tensor_parallel_size: gr.Number
-    gpu_memory_utilization: gr.Slider
+    create_max_model_len: gr.Slider
+    create_tensor_parallel_size: gr.Number
+    create_gpu_memory_utilization: gr.Slider
     
     def to_list(self) -> list:
         return [getattr(self, f.name) for f in fields(self)]
 
 @dataclass
 class VllmCreateInputValues:
-    max_model_len: int
-    tensor_parallel_size: int
-    gpu_memory_utilization: int
+    create_max_model_len: int
+    create_tensor_parallel_size: int
+    create_gpu_memory_utilization: int
 
 @dataclass
 class VllmLoadInputComponents:
@@ -1511,19 +1511,21 @@ def create_app():
             with gr.Column(scale=4):
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
                         
-
+                with gr.Accordion(("Create vLLM Parameters"), open=True, visible=True) as row_vllm_create_settings:
+                    vllm_input_components = VllmCreateInputComponents(
+                        create_max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
+                        create_tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
+                        create_gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
+                    )
+                    
+                    
                 with gr.Row(visible=True) as row_create_vllm:
                     vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
                     
                     
                 
                 
-                with gr.Accordion(("Create new vLLM Parameters"), open=True, visible=True) as row_vllm_create_settings:
-                    vllm_input_components = VllmCreateInputComponents(
-                        max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
-                        tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
-                        gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
-                    )
+
                                         
                 
                 
