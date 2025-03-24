@@ -362,11 +362,7 @@ def get_info(selected_id):
     
     print(f' @@@ [get_info] {selected_id}')
     logging.info(f' @@@ [get_info] {selected_id}')   
-    global current_models_data
-    global GLOBAL_SELECTED_MODEL_ID
-    GLOBAL_SELECTED_MODEL_ID = selected_id
-    print(f' @@@ [get_info] {selected_id} 2')
-    logging.info(f' @@@ [get_info] {selected_id} 2')  
+
     res_model_data = {
         "search_data" : "",
         "model_id" : selected_id,
@@ -376,6 +372,16 @@ def get_info(selected_id):
         "private" : "",
         "downloads" : ""
     }
+    container_name = ""
+    if selected_id == '':
+        return res_model_data["search_data"], res_model_data["model_id"], res_model_data["architectures"], res_model_data["pipeline_tag"], res_model_data["transformers"], res_model_data["private"], res_model_data["downloads"], container_name
+    
+    global current_models_data
+    global GLOBAL_SELECTED_MODEL_ID
+    GLOBAL_SELECTED_MODEL_ID = selected_id
+    print(f' @@@ [get_info] {selected_id} 2')
+    logging.info(f' @@@ [get_info] {selected_id} 2')  
+    
     print(f' @@@ [get_info] {selected_id} 3')
     logging.info(f' @@@ [get_info] {selected_id} 3')  
     container_name = str(res_model_data["model_id"]).replace('/', '_')
@@ -550,6 +556,13 @@ def get_additional_info(selected_id):
             return res_model_data["hf_data"], res_model_data["config_data"], res_model_data["model_id"], res_model_data["size"], res_model_data["gated"], res_model_data["model_type"],  res_model_data["quantization"], res_model_data["torch_dtype"], res_model_data["hidden_size"]
 
 def gr_load_check(selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization):
+    
+    
+    
+    
+    
+    if selected_model_id == '':
+        return f'Model not found!', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
     
     global vllm_supported_architectures
     
@@ -1240,7 +1253,6 @@ def create_app():
             with gr.Column(scale=4):
                 with gr.Accordion(("vLLM Parameters"), open=True) as accordion_vllm_params:
                     vllm_input_components = VllmInputComponents(
-                        model_id=gr.Textbox(placeholder=f'{GLOBAL_SELECTED_MODEL_ID}', value=f'{GLOBAL_SELECTED_MODEL_ID}', label="model_id", info="Hugging Face Model ID"),
                         max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
