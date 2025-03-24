@@ -2060,6 +2060,31 @@ def create_app():
             output,
             concurrency_limit=15
         ).then(
+            lambda: gr.update(label="Download finished!"), 
+            None, 
+            output
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            btn_interface
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            row_deploy
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            accordion_vllm_params
+        )
+
+
+        btn_dl.click(
+            lambda: gr.update(
+                label="Starting download ...",
+                visible=True), 
+            None, 
+            output
+        ).then(
             download_info, 
             selected_model_size, 
             output,
@@ -2086,41 +2111,6 @@ def create_app():
             None, 
             accordion_vllm_params
         )
-
-
-        # btn_dl.click(
-        #     lambda: gr.update(
-        #         label="Starting download ...",
-        #         visible=True), 
-        #     None, 
-        #     output
-        # ).then(
-        #     download_info, 
-        #     selected_model_size, 
-        #     output,
-        #     concurrency_limit=15
-        # ).then(
-        #     download_from_hf_hub, 
-        #     model_dropdown, 
-        #     output,
-        #     concurrency_limit=15
-        # ).then(
-        #     lambda: gr.update(label="Download finished!"), 
-        #     None, 
-        #     output
-        # ).then(
-        #     lambda: gr.update(visible=True), 
-        #     None, 
-        #     btn_interface
-        # ).then(
-        #     lambda: gr.update(visible=True), 
-        #     None, 
-        #     row_deploy
-        # ).then(
-        #     lambda: gr.update(visible=True), 
-        #     None, 
-        #     accordion_vllm_params
-        # )
 
 
         # btn_dl.click(
