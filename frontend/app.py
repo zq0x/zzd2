@@ -2048,24 +2048,17 @@ def create_app():
                 return f'err {str(e)}'
 
 
-        
+
+
         btn_dl.click(
             lambda: gr.update(label="Starting download ...", visible=True), 
             None, 
             output
         ).then(
-            lambda: gr.Timer(active=True), 
-            None, 
-            timer_dl
-        ).then(
             parallel_download, 
             [selected_model_size, model_dropdown], 
             output,
             concurrency_limit=15
-        ).then(
-            lambda: gr.Timer(active=False), 
-            None, 
-            timer_dl
         ).then(
             lambda: gr.update(label="Download finished!"), 
             None, 
@@ -2083,6 +2076,42 @@ def create_app():
             None, 
             accordion_vllm_params
         )
+
+
+        btn_dl.click(
+            lambda: gr.update(
+                label="Starting download ...",
+                visible=True), 
+            None, 
+            output
+        ).then(
+            download_info, 
+            selected_model_size, 
+            download_info_output,
+            concurrency_limit=15
+        ).then(
+            download_from_hf_hub, 
+            model_dropdown, 
+            output,
+            concurrency_limit=15
+        ).then(
+            lambda: gr.update(label="Download finished!"), 
+            None, 
+            output
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            btn_interface
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            row_deploy
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            accordion_vllm_params
+        )
+
 
         # btn_dl.click(
         #     lambda: gr.update(
