@@ -803,12 +803,12 @@ def gpu_to_pd():
     global GLOBAL_MEM_USED
     global GLOBAL_MEM_FREE
     rows = []
-    print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_TOTAL}')
-    logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_TOTAL}')
-    print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_USED}')
-    logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_USED}')
-    print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_FREE}')
-    logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_FREE}')
+    # print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_TOTAL}')
+    # logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_TOTAL}')
+    # print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_USED}')
+    # logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_USED}')
+    # print(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_FREE}')
+    # logging.info(f' **>>> gpu_to_pd >> 0 >> {GLOBAL_MEM_FREE}')
     try:
         gpu_list = get_gpu_data()
         GLOBAL_MEM_TOTAL = 0
@@ -817,14 +817,14 @@ def gpu_to_pd():
         for entry in gpu_list:
             gpu_info = ast.literal_eval(entry['gpu_info'])
             
-            print(f' **>>> gpu_to_pd >> 1 >> {gpu_info}')
-            logging.info(f' **>>> gpu_to_pd >> 1 >> {gpu_info}')
-            print(f' **>>> gpu_to_pd >> 1 >> mem_total {gpu_info["mem_total"]}')
-            logging.info(f' **>>> gpu_to_pd >> 1 >>  mem_total {gpu_info["mem_total"]}')
-            print(f' **>>> gpu_to_pd >> 1 >> mem_used {gpu_info["mem_used"]}')
-            logging.info(f' **>>> gpu_to_pd >> 1 >>  mem_used {gpu_info["mem_used"]}')
-            print(f' **>>> gpu_to_pd >> 1 >> mem_free {gpu_info["mem_free"]}')
-            logging.info(f' **>>> gpu_to_pd >> 1 >>  mem_free {gpu_info["mem_free"]}')
+            # print(f' **>>> gpu_to_pd >> 1 >> {gpu_info}')
+            # logging.info(f' **>>> gpu_to_pd >> 1 >> {gpu_info}')
+            # print(f' **>>> gpu_to_pd >> 1 >> mem_total {gpu_info["mem_total"]}')
+            # logging.info(f' **>>> gpu_to_pd >> 1 >>  mem_total {gpu_info["mem_total"]}')
+            # print(f' **>>> gpu_to_pd >> 1 >> mem_used {gpu_info["mem_used"]}')
+            # logging.info(f' **>>> gpu_to_pd >> 1 >>  mem_used {gpu_info["mem_used"]}')
+            # print(f' **>>> gpu_to_pd >> 1 >> mem_free {gpu_info["mem_free"]}')
+            # logging.info(f' **>>> gpu_to_pd >> 1 >>  mem_free {gpu_info["mem_free"]}')
             
             current_gpu_mem_total = gpu_info.get("mem_total", "0")
             current_gpu_mem_used = gpu_info.get("mem_used", "0")
@@ -834,14 +834,14 @@ def gpu_to_pd():
             GLOBAL_MEM_FREE = float(GLOBAL_MEM_FREE) + float(current_gpu_mem_free.split()[0])
             
 
-            print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
-            logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
+            # print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
+            # logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_TOTAL {GLOBAL_MEM_TOTAL}')
             
-            print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
-            logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
+            # print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
+            # logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_USED {GLOBAL_MEM_USED}')
             
-            print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
-            logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
+            # print(f' **>>> gpu_to_pd >> 2 >> GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
+            # logging.info(f' **>>> gpu_to_pd >> 2 >>  GLOBAL_MEM_FREE {GLOBAL_MEM_FREE}')
 
             
             rows.append({                
