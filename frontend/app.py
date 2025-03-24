@@ -1016,6 +1016,26 @@ def refresh_container():
 
 
 
+
+@dataclass
+class PromptComponents:
+    prompt_in: gr.Textbox
+    top_p: gr.Slider
+    temperature: gr.Slider
+    gpu_memory_utilization: gr.Slider
+    
+    def to_list(self) -> list:
+        return [getattr(self, f.name) for f in fields(self)]
+
+@dataclass
+class GenerateValues:
+    prompt_in: str
+    top_p: int
+    temperature: int
+    gpu_memory_utilization: int
+
+
+
 @dataclass
 class VllmInputComponents:
     max_model_len: gr.Slider
@@ -1218,8 +1238,44 @@ def load_vllm_running(*params):
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
         return f'{e}'
     
+        
+def llm_generate(*params):
     
+    try:
+        global GLOBAL_SELECTED_MODEL_ID
+        print(f' >>> llm_generate GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        print(f' >>> llm_generate got params: {params} ')
+        logging.exception(f'[llm_generate] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.exception(f'[llm_generate] >> got params: {params} ')
+
+        req_params = PromptComponents(*params)
+
+
+        response = requests.post(BACKEND_URL, json={
+            "req_method":"generate",
+            "prompt_in":req_params.get("prompt_in", "Tell a joke"),
+            "top_p":req_params.get("top_p", 0.95),
+            "temperature":req_params.get("temperature", 0.8),
+            "max_tokens":req_params.get("max_tokens", 150)
+        }, timeout=REQUEST_TIMEOUT)
+
+        if response.status_code == 200:
+            print(f' !?!?!?!? [llm_generate] got response == 200 building json ... {response} ')
+            logging.exception(f'!?!?!?!? [llm_generate] got response == 200 building json ...  {response} ')
+            res_json = response.json()        
+            print(f' !?!?!?!? [llm_generate] GOT RES_JSON: llm_generate GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+            logging.exception(f'!?!?!?!? [llm_generate] GOT RES_JSON: {res_json} ')          
+            return f'{res_json}'
+        else:
+            logging.exception(f'[llm_generate] Request Error: {response}')
+            return f'Request Error: {response}'
     
+    except Exception as e:
+        logging.exception(f'Exception occured: {e}', exc_info=True)
+        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
+        return f'{e}'
+    
+
 
 
 
@@ -1369,9 +1425,6 @@ def parallel_download(selected_model_size, model_dropdown):
 
     return "Download finished!"
 
-def pass_to_model_id(req_model_id):
-    return f'{req_model_id}'
-
 
 def create_app():
     with gr.Blocks() as app:
@@ -1457,15 +1510,25 @@ def create_app():
         gpu_timer = gr.Timer(1,active=True)
         gpu_timer.tick(gpu_to_pd, outputs=gpu_dataframe)
         
-        with gr.Row():
-            top_p = gr.Textbox(label="top_p", placeholder="0.95", value=0.95, visible=True)
-            temperature = gr.Slider(0.1, 1.0, step=0.1, label="temperature", value=0.8, visible=True)
-            max_tokens = gr.Number(label="max_tokens", value=150, visible=True)
         
         
-        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Query", show_label=True, visible=True)  
-        prompt_out = gr.Textbox(placeholder="Result will appear here", label="Output", show_label=True, visible=True)
-        prompt_btn = gr.Button("Submit", visible=True)
+        with gr.Row(visible=True) as generate_row:
+            with gr.Column(scale=4):
+                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_llm_generate:
+                    llm_generate_components = PromptComponents(
+                        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
+                        top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
+                        temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
+                        max_tokens=gr.Slider(50, 5000, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
+                    )                
+                prompt_out = gr.Textbox(placeholder="Result will appear here", label="Output", show_label=True, visible=True)
+            with gr.Column(scale=1, visible=True) as accordion_llm_generate_btn:
+                prompt_btn = gr.Button("GENERATE", visible=True)
+        
+
+        
+
+        
         
         
                     
@@ -1620,6 +1683,14 @@ def create_app():
             lambda: gr.update(open=False), 
             None, 
             accordion_vllm_params
+        )
+
+
+        
+        prompt_btn.click(
+            llm_generate,
+            llm_generate_components.to_list(),
+            [output]
         )
 
 
