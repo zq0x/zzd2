@@ -1552,7 +1552,7 @@ def create_app():
             with gr.Column(scale=4):
                 
                 
-                with gr.Row(visible=False) as row_select_vllm:
+                with gr.Row(visible=True) as row_select_vllm:
                     vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
                     
                 with gr.Accordion(("Create vLLM Parameters"), open=False, visible=False) as vllm_create_settings:
@@ -2171,6 +2171,10 @@ def create_app():
             lambda: gr.update(visible=True),
             None,
             vllm_load_settings
+        ).then(
+            lambda: gr.update(visible=True, open=True),
+            None,
+            vllm_create_settings
         )
 
 
