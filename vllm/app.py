@@ -4,8 +4,13 @@ from datetime import datetime
 import os
 import logging
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+LOG_PATH= './logs'
+LOGFILE_CONTAINER = f'{LOG_PATH}/logfile_container_vllm.log'
+os.makedirs(os.path.dirname(LOGFILE_CONTAINER), exist_ok=True)
+logging.basicConfig(filename=LOGFILE_CONTAINER, level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [START] vLLM 222 started logging in {LOGFILE_CONTAINER}')
+
+
 app = FastAPI()
 
 llm_instance = None

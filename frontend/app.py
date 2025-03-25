@@ -1449,7 +1449,8 @@ def download_info(req_model_size, progress=gr.Progress()):
         print(f' &&&&&&&&&&&&&& current_dl_arr: {current_dl_arr}')
         if all(value < 10000 for value in current_dl_arr[-4:]):
             print(f' &&&&&&&&&&&&&& DOWNLOAD FINISH EHH??: {current_dl_arr}')
-
+            yield f'Progress: 100%\nFiniiiiiiiish!'
+            return
             
         download_speed_mbit_s = (download_speed * 8) / (1024 ** 2)
         
