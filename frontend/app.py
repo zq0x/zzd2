@@ -1547,7 +1547,7 @@ def create_app():
                 with gr.Row(visible=False) as row_select_vllm:
                     vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", info="Select a vLLM or create a new one. Where?")
                     
-                with gr.Accordion(("Create vLLM Parameters"), open=False, visible=False) as vllm_create_settings:
+                with gr.Accordion(("Create vLLM Parameters"), open=True, visible=False) as vllm_create_settings:
                     vllm_create_components = VllmCreateComponents(
                         create_max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
                         create_tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
@@ -1571,7 +1571,7 @@ def create_app():
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
                     
-                
+                output = gr.Textbox(label="Output", show_label=True, visible=True) 
                 with gr.Accordion(("Prompt Parameters"), open=False, visible=False) as vllm_prompt_settings:
                     llm_prompt_components = PromptComponents(
                         prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
@@ -1580,7 +1580,7 @@ def create_app():
                         max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
                     )  
                 
-                output = gr.Textbox(label="Output", show_label=True, visible=True) 
+                
 
             with gr.Column(scale=1):
                 with gr.Row(visible=False) as row_download:
@@ -1735,19 +1735,27 @@ def create_app():
 
 
 
-        
+        aaaa
         btn_load_vllm.click(
+            lambda: gr.update(visible=False, open=False), 
+            None, 
+            vllm_load_settings            
+        ).then(
+            lambda: gr.update(visible=False), 
+            None, 
+            row_select_vllm   
+        ).then(
             llm_load,
             vllm_load_components.to_list(),
             [output]
         ).then(
-            lambda: gr.update(visible=False, open=False), 
-            None, 
-            vllm_load_settings
-        ).then(
             lambda: gr.update(visible=True, open=True), 
             None, 
             vllm_prompt_settings
+        ).then(
+            lambda: gr.update(visible=False), 
+            None, 
+            btn_load_vllm
         )
         
         btn_create_vllm.click(
