@@ -1135,17 +1135,17 @@ def toggle_vllm_load_create(vllm_list):
     
     if "Create New" in vllm_list:
         return (
-            gr.Textbox(visible=True),
-            gr.Button(visible=True),    
             gr.Textbox(visible=False),
-            gr.Button(visible=False)
+            gr.Button(visible=False),
+            gr.Textbox(visible=True),
+            gr.Button(visible=True)
         )
 
     return (
-        gr.Textbox(visible=False),
-        gr.Button(visible=False),
         gr.Textbox(visible=True),
-        gr.Button(visible=True)
+        gr.Button(visible=True),    
+        gr.Textbox(visible=False),
+        gr.Button(visible=False)
     )
 
 def load_vllm_running3(*params):
@@ -1550,9 +1550,9 @@ def create_app():
         # hier 2
         with gr.Row(visible=True) as output_column_model_actions:
             with gr.Column(scale=4):
-                output = gr.Textbox(label="Output", show_label=True, visible=True) 
                 
-                with gr.Row(visible=True) as row_create_vllm:
+                
+                with gr.Row(visible=False) as row_select_vllm:
                     vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
                     
                 with gr.Accordion(("Create vLLM Parameters"), open=False, visible=False) as vllm_create_settings:
@@ -1587,6 +1587,8 @@ def create_app():
                         temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
                         max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
                     )  
+                
+                output = gr.Textbox(label="Output", show_label=True, visible=True) 
 
             with gr.Column(scale=1):
                 with gr.Row(visible=False) as row_download:
@@ -1734,13 +1736,13 @@ def create_app():
         btn_create_vllm.click(
             lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)], 
             None, 
-            [row_create_vllm, btn_create_vllm_close, vllm_create_settings]
+            [row_select_vllm, btn_create_vllm_close, vllm_create_settings]
         )
         
         btn_create_vllm_close.click(
             lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)], 
             None, 
-            [row_create_vllm, btn_create_vllm_close, vllm_create_settings]
+            [row_select_vllm, btn_create_vllm_close, vllm_create_settings]
         )
 
 
@@ -2135,7 +2137,7 @@ def create_app():
 
         btn_dl.click(
             lambda: gr.update(
-                label="Starting download ...",
+                label="Starting download",
                 visible=True),
             None,
             output
@@ -2150,7 +2152,7 @@ def create_app():
             output,
             concurrency_limit=15
         ).then(
-            lambda: gr.update(label="Download finished!"),
+            lambda: gr.update(label="Download finished"),
             None,
             output
         ).then(
@@ -2164,11 +2166,11 @@ def create_app():
         ).then(
             lambda: gr.update(visible=True),
             None,
-            vllm_load_settings
+            row_select_vllm
         ).then(
             lambda: gr.update(visible=True),
             None,
-            vllm_create_settings
+            vllm_load_settings
         )
 
 
