@@ -1552,7 +1552,7 @@ def create_app():
             with gr.Column(scale=4):
                 
                 
-                with gr.Row(visible=True) as row_select_vllm:
+                with gr.Row(visible=False) as row_select_vllm:
                     vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", label="vLLMs", info="Where to deploy?")
                     
                 with gr.Accordion(("Create vLLM Parameters"), open=False, visible=False) as vllm_create_settings:
@@ -1580,7 +1580,7 @@ def create_app():
                     )
                     
                 
-                with gr.Accordion(("Prompt Parameters"), open=False) as accordion_vllm_prompt_settings:
+                with gr.Accordion(("Prompt Parameters"), open=False) as vllm_prompt_settings:
                     llm_prompt_components = PromptComponents(
                         prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
                         top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
@@ -1753,9 +1753,13 @@ def create_app():
             vllm_load_components.to_list(),
             [output]
         ).then(
-            lambda: gr.update(open=False), 
+            lambda: gr.update(visible=False, open=False), 
             None, 
             vllm_load_settings
+        ).then(
+            lambda: gr.update(visible=True, open=True), 
+            None, 
+            vllm_prompt_settings
         )
         
         btn_create_vllm.click(
@@ -2171,9 +2175,13 @@ def create_app():
             None,
             vllm_load_settings
         ).then(
+            lambda: gr.update(visible=True),
+            None,
+            row_select_vllm
+        ).then(
             lambda: gr.update(visible=True, open=True),
             None,
-            vllm_create_settings
+            vllm_load_settings
         )
 
 
