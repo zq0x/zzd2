@@ -1735,7 +1735,6 @@ def create_app():
 
 
 
-        aaaa
         btn_load_vllm.click(
             lambda: gr.update(visible=False, open=False), 
             None, 
