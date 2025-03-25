@@ -621,14 +621,14 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     if req_model_path in models_found:
         print(f' **************** FOUND MODELS ALREADY!!! {selected_model_id} ist in {models_found}')
         model_path = req_model_path
-        return f'Model already downloaded!', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+        return f'Model already downloaded!', gr.update(visible=True), gr.update(visible=True)
     else:
         print(f' **************** NUH UH DIDNT FIND MODEL YET!! {selected_model_id} ist NAWT in {models_found}')
     
     
         
     if selected_model_architectures == '':
-        return f'Selected model has no architecture', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+        return f'Selected model has no architecture', gr.update(visible=False), gr.update(visible=False)
     
     
     print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] **************** [gr_load_check] selected_model_architectures.lower() : {selected_model_architectures.lower()}')
@@ -636,27 +636,27 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
 
     if selected_model_architectures.lower() not in vllm_supported_architectures:
         if selected_model_transformers != 'True':   
-            return f'Selected model architecture is not supported by vLLM but transformers are available (you may try to load the model in gradio Interface)', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+            return f'Selected model architecture is not supported by vLLM but transformers are available (you may try to load the model in gradio Interface)', gr.update(visible=True), gr.update(visible=True)
         else:
-            return f'Selected model architecture is not supported by vLLM and has no transformers', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)     
+            return f'Selected model architecture is not supported by vLLM and has no transformers', gr.update(visible=False), gr.update(visible=False)     
     
     if selected_model_pipeline_tag == '':
-        return f'Selected model has no pipeline tag', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+        return f'Selected model has no pipeline tag', gr.update(visible=True), gr.update(visible=True)
             
     if selected_model_pipeline_tag not in ["text-generation","automatic-speech-recognition"]:
-        return f'Only "text-generation" and "automatic-speech-recognition" models supported', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+        return f'Only "text-generation" and "automatic-speech-recognition" models supported', gr.update(visible=False), gr.update(visible=False)
     
     if selected_model_private != 'False':        
-        return f'Selected model is private', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+        return f'Selected model is private', gr.update(visible=False), gr.update(visible=False)
         
     if selected_model_gated != 'False':        
-        return f'Selected model is gated', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+        return f'Selected model is gated', gr.update(visible=False), gr.update(visible=False)
         
     if selected_model_transformers != 'True':        
-        return f'Selected model has no transformers', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+        return f'Selected model has no transformers', gr.update(visible=True), gr.update(visible=True)
         
     if selected_model_size == '0':        
-        return f'Selected model has no size', gr.update(visible=False), gr.update(visible=False), gr.update(visible=False)
+        return f'Selected model has no size', gr.update(visible=False), gr.update(visible=False)
 
 
 
@@ -723,7 +723,7 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
 
 
 
-    return f'Selected model is supported by vLLM!', gr.update(visible=True), gr.update(visible=True), gr.update(visible=True)
+    return f'Selected model is supported by vLLM!', gr.update(visible=True), gr.update(visible=True)
 
 def network_to_pd():       
     rows = []
@@ -1715,7 +1715,7 @@ def create_app():
         ).then(
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
-            [output,row_download,vllm_load_settings,btn_load_vllm]
+            [output,row_download,btn_load_vllm]
         )
 
 
@@ -2170,6 +2170,10 @@ def create_app():
             lambda: gr.update(visible=True),
             None,
             vllm_load_settings
+        ).then(
+            lambda: gr.update(visible=True),
+            None,
+            vllm_load_actions
         ).then(
             lambda: gr.update(visible=True),
             None,
