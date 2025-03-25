@@ -1616,22 +1616,21 @@ def create_app():
         with gr.Column(scale=1, visible=True) as vllm_running_engine_argumnts_btn:
             vllm_running_engine_arguments_show = gr.Button("LOAD VLLM CREATEEEEEEEEUUUUHHHHHHHH", variant="primary")
             vllm_running_engine_arguments_close = gr.Button("CANCEL")
-             
-        # hia       
-        with gr.Row(visible=False) as vllm_create_settings:
-            with gr.Column(scale=4):
-                with gr.Accordion(("Create Parameters"), open=False):
-                    input_components = InputComponents(
-                        param0=gr.Textbox(placeholder="pasdsssda", value="genau", label="Textbox", info="yes a textbox"),
-                        param1=gr.Slider(2, 20, value=1, label="Count", info="Choose between 2 and 20"),
-                        param2=gr.Number(label="Number Input", value="2", info="Enter a number"),
-                        quantity=gr.Slider(2, 20, value=4, label="Count", info="Choose between 2 and 20"),
-                        animal=gr.Dropdown(["cat", "dog", "bird"], label="Animal", info="Will add more animals later!"),
-                        countries=gr.CheckboxGroup(["USA", "Japan", "Pakistan"], label="Countries", info="Where are they from?"),
-                        place=gr.Radio(["park", "zoo", "road"], label="Location", info="Where did they go?"),
-                        activity_list=gr.Dropdown(["ran", "swam", "ate", "slept"], value=["swam", "slept"], multiselect=True, label="Activity", info="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor, nisl eget ultricies aliquam, nunc nisl aliquet nunc, eget aliquam nisl nunc vel nisl."),
-                        morning=gr.Checkbox(label="Morning", value=True, info="Did they do it in the morning?")
-                    )
+           
+        # with gr.Row(visible=False) as vllm_create_settings:
+        #     with gr.Column(scale=4):
+        #         with gr.Accordion(("Create Parameters"), open=False):
+        #             input_components = InputComponents(
+        #                 param0=gr.Textbox(placeholder="pasdsssda", value="genau", label="Textbox", info="yes a textbox"),
+        #                 param1=gr.Slider(2, 20, value=1, label="Count", info="Choose between 2 and 20"),
+        #                 param2=gr.Number(label="Number Input", value="2", info="Enter a number"),
+        #                 quantity=gr.Slider(2, 20, value=4, label="Count", info="Choose between 2 and 20"),
+        #                 animal=gr.Dropdown(["cat", "dog", "bird"], label="Animal", info="Will add more animals later!"),
+        #                 countries=gr.CheckboxGroup(["USA", "Japan", "Pakistan"], label="Countries", info="Where are they from?"),
+        #                 place=gr.Radio(["park", "zoo", "road"], label="Location", info="Where did they go?"),
+        #                 activity_list=gr.Dropdown(["ran", "swam", "ate", "slept"], value=["swam", "slept"], multiselect=True, label="Activity", info="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed auctor, nisl eget ultricies aliquam, nunc nisl aliquet nunc, eget aliquam nisl nunc vel nisl."),
+        #                 morning=gr.Checkbox(label="Morning", value=True, info="Did they do it in the morning?")
+        #             )
 
                 
 
