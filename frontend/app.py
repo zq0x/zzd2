@@ -2186,7 +2186,7 @@ def create_app():
             None,
             row_select_vllm
         ).then(
-            lambda: gr.update(visible=True, open=True),
+            lambda: gr.update(visible=True, open=False),
             None,
             vllm_load_settings
         )
