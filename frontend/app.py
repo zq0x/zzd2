@@ -1572,13 +1572,7 @@ def create_app():
                     )
                     
                 output = gr.Textbox(label="Output", show_label=True, visible=True) 
-                with gr.Accordion(("Prompt Parameters"), open=False, visible=False) as vllm_prompt_settings:
-                    llm_prompt_components = PromptComponents(
-                        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
-                        top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
-                        temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
-                        max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
-                    )  
+
                 
                 
 
@@ -1589,10 +1583,24 @@ def create_app():
                     btn_load_vllm = gr.Button("DEPLOY")
                     # btn_vllm_running2 = gr.Button("CLEAR NU GO 1370")
                     # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
-                    prompt_btn = gr.Button("PROMPT", visible=True)
+                    prompt_btn = gr.Button("PROMPT")
                 with gr.Row(visible=False) as vllm_create_actions:
                     btn_create_vllm = gr.Button("CREATE", variant="primary")
                     btn_create_vllm_close = gr.Button("CANCEL")
+            
+            
+            with gr.Row(visible=False) as row_prompt:
+                with gr.Column(scale=4):
+                    with gr.Accordion(("Prompt Parameters"), open=True) as vllm_prompt_settings:
+                        llm_prompt_components = PromptComponents(
+                        prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
+                        top_p=gr.Slider(0.01, 1.0, step=0.01, value=0.95, label="top_p", info=f'Float that controls the cumulative probability of the top tokens to consider'),
+                        temperature=gr.Slider(0.0, 0.99, step=0.01, value=0.8, label="temperature", info=f'Float that controls the randomness of the sampling. Lower values make the model more deterministic, while higher values make the model more random. Zero means greedy sampling'),
+                        max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
+                    )  
+            with gr.Column(scale=1):
+                with gr.Row() as vllm_prompt:
+                    prompt_btn = gr.Button("PROMPT", visible=True)
 
 
         gpu_dataframe = gr.Dataframe(label="GPU information")
@@ -1755,6 +1763,10 @@ def create_app():
             lambda: gr.update(visible=False), 
             None, 
             btn_load_vllm
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            row_prompt
         )
         
         btn_create_vllm.click(
