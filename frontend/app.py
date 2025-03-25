@@ -1541,12 +1541,12 @@ def create_app():
                         
                 
         # hier 2
-        with gr.Row(visible=True) as output_column_model_actions:
+        with gr.Row(visible=True) as row_vllm:
             with gr.Column(scale=4):
                 
                 
                 with gr.Row(visible=False) as row_select_vllm:
-                    vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", info="Select a vLLM or create a new one. Where?")
+                    vllms=gr.Radio(["vLLM1", "vLLM2", "Create New"], value="vLLM1", show_label=False, info="Select a vLLM or create a new one. Where?")
                     
                 with gr.Accordion(("Create vLLM Parameters"), open=True, visible=False) as vllm_create_settings:
                     vllm_create_components = VllmCreateComponents(
@@ -1687,7 +1687,6 @@ def create_app():
 
 
 
-        
         model_dropdown.change(
             get_info, 
             model_dropdown, 
@@ -1707,11 +1706,15 @@ def create_app():
         ).then(
             lambda: gr.update(visible=True), 
             None, 
-            output_column_model_actions
+            row_vllm
         ).then(
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
             [output,row_download,btn_load_vllm]
+        ).then(
+            lambda: gr.update(visible=False), 
+            None, 
+            row_vllm
         )
 
 
