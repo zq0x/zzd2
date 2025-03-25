@@ -1371,23 +1371,6 @@ def predict_with_my_model(*params):
 
 
 
-prev_bytes_recv = 0
-def get_download_speed():
-    try:
-        global prev_bytes_recv        
-        net_io = psutil.net_io_counters()
-        bytes_recv = net_io.bytes_recv
-        download_speed = bytes_recv - prev_bytes_recv
-        prev_bytes_recv = bytes_recv
-        download_speed_kb = download_speed / 1024
-        download_speed_mbit_s = (download_speed * 8) / (1024 ** 2)      
-        bytes_received_mb = bytes_recv
-        return f'{download_speed} bytes ({download_speed_mbit_s:.2f} MBit/s)'
-    except Exception as e:
-        print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
-        return f'download error: {e}'
-
-
 
 
 def download_from_hf_hub(selected_model_id):
@@ -1455,10 +1438,19 @@ def download_info(req_model_size, progress=gr.Progress()):
 
     logging.info(f' **************** [download_info] zzz waiting for download_complete_event zzz waiting {est_download_time_sec}')
     print(f' **************** [download_info] zzz waiting for download_complete_event zzz waiting {est_download_time_sec}')
+    current_dl_arr = []
     for i in range(0,est_download_time_sec):
+        if len(current_dl_arr) > 5:
+            current_dl_arr = []
         net_io = psutil.net_io_counters()
         bytes_recv = net_io.bytes_recv
         download_speed = bytes_recv - download_info_prev_bytes_recv
+        current_dl_arr.append(download_speed)
+        print(f' &&&&&&&&&&&&&& current_dl_arr: {current_dl_arr}')
+        if all(value < 10000 for value in current_dl_arr[-4:]):
+            print(f' &&&&&&&&&&&&&& DOWNLOAD FINISH EHH??: {current_dl_arr}')
+
+            
         download_speed_mbit_s = (download_speed * 8) / (1024 ** 2)
         
         download_info_prev_bytes_recv = int(bytes_recv)
@@ -1656,10 +1648,6 @@ def create_app():
                 print(f'selected_model_id_arr {selected_model_id_arr}...')            
                 gr.Interface.from_pipeline(pipeline(text_pipeline, model=f'/models/{selected_model_id_arr[0]}/{selected_model_id_arr[1]}'))
 
-        timer_dl = gr.Timer(1,active=False)
-        timer_dl.tick(get_download_speed, outputs=output)    
-        
-        
         timer_c = gr.Timer(1,active=False)
         timer_c.tick(refresh_container)
                 
