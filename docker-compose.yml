@@ -47,7 +47,7 @@ services:
       - "1370:1370"
     container_name: container_vllm
     volumes:
-      - ../logs:/var/log
+      - ../logs:/usr/src/app/logs
       - /models:/models
     shm_size: 8gb
     environment:
