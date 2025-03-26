@@ -21,10 +21,15 @@ import psutil
 
 
 
-with open("/usr/src/app/utils/defaults.json", "r") as f:
+
+DEFAULTS_PATH = "/usr/src/app/utils/defaults.json"
+if not os.path.exists(DEFAULTS_PATH):
+    raise FileNotFoundError(f"File missing: {DEFAULTS_PATH}")
+
+with open(DEFAULTS_PATH, "r") as f:
     defaults_frontend = json.load(f)["frontend"]
 
-print(defaults_frontend)  # Debug check
+print("SUCCESS! Loaded:", defaults_frontend)
 
 REQUEST_TIMEOUT = 300
 def wait_for_backend(backend_url, timeout=300):
