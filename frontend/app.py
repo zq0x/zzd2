@@ -22,14 +22,7 @@ import psutil
 
 
 
-DEFAULTS_PATH = "/usr/src/app/utils/defaults.json"
-if not os.path.exists(DEFAULTS_PATH):
-    raise FileNotFoundError(f"File missing: {DEFAULTS_PATH}")
 
-with open(DEFAULTS_PATH, "r") as f:
-    defaults_frontend = json.load(f)["frontend"]
-
-print("SUCCESS! Loaded:", defaults_frontend)
 
 REQUEST_TIMEOUT = 300
 def wait_for_backend(backend_url, timeout=300):
@@ -46,16 +39,7 @@ def wait_for_backend(backend_url, timeout=300):
     print(f"Timeout: Backend container did not come online within {timeout} seconds.")
     return False
 
-# defaults_frontend = json.load(open('./utils/defaults.json'))['frontend'] nu work
 
-# defaults_frontend = json.load(open('utils/defaults.json'))['frontend']
-
-# import json
-
-# defaults_path = Path(__file__).parent.parent / "utils" / "defaults.json"
-# defaults_frontend = json.loads(defaults_path.read_text())['frontend']
-# print(defaults_frontend['default_input_1'])  # "Hello"
-# print(defaults_frontend['vllm_supported_architectures'])  # ["aquilaforcausallm", ...]
 
 docker_container_list = []
 current_models_data = []
@@ -94,6 +78,13 @@ def load_log_file(req_container_name):
 
 
 
+DEFAULTS_PATH = "/usr/src/app/utils/defaults.json"
+if not os.path.exists(DEFAULTS_PATH):
+    logging.info(f' EEEEEEEEEEEEEE File missing: {DEFAULTS_PATH}')
+
+with open(DEFAULTS_PATH, "r") as f:
+    defaults_frontend = json.load(f)["frontend"]
+    logging.info(f'SUCCESS! Loaded: {defaults_frontend}')
 
 
 
