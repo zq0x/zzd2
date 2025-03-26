@@ -20,7 +20,7 @@ import logging
 import tensorflow as tf
 import gc
 
-FALLBACK_CONTAINER_STATS = {
+DEFAULT_CONTAINER_STATS = {
     'name': '/error_container',
     'id': '0000000000000000000000000000000000000000000000000000000000000000',
     'read': '2025-01-01T00:00:00.000000000Z',
@@ -121,8 +121,6 @@ FALLBACK_CONTAINER_STATS = {
 }
 
 
-
-
 # print(f'** connecting to redis on port: {os.getenv("REDIS_PORT")} ... ')
 r = redis.Redis(host="redis", port=int(os.getenv("REDIS_PORT", 6379)), db=0)
 
@@ -146,6 +144,15 @@ for i in range(0,device_count):
     device_uuids.append(current_uuid)
 
 # print(f'** pynvml found uuids ({len(device_uuids)}): {device_uuids} ')
+
+
+DEFAULTS_PATH = "/usr/src/app/utils/defaults.json"
+if not os.path.exists(DEFAULTS_PATH):
+    logging.info(f' [START] File missing: {DEFAULTS_PATH}')
+
+with open(DEFAULTS_PATH, "r", encoding="utf-8") as f:
+    defaults_frontend = json.load(f)["frontend"]
+    logging.info(f' [START] SUCCESS! Loaded: {DEFAULTS_PATH}')
 
 
 

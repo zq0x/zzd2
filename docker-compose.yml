@@ -19,6 +19,7 @@ services:
       - VLLM_PORT=1370
     volumes:
       - ./backend:/usr/src/app
+      - ./utils:/usr/src/app/utils   
       - /var/run/docker.sock:/var/run/docker.sock
       - ../logs:/usr/src/app/logs
       - /models:/models

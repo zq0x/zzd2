@@ -80,11 +80,12 @@ def load_log_file(req_container_name):
 
 DEFAULTS_PATH = "/usr/src/app/utils/defaults.json"
 if not os.path.exists(DEFAULTS_PATH):
-    logging.info(f' EEEEEEEEEEEEEE File missing: {DEFAULTS_PATH}')
+    logging.info(f' [START] File missing: {DEFAULTS_PATH}')
 
-with open(DEFAULTS_PATH, "r") as f:
+with open(DEFAULTS_PATH, "r", encoding="utf-8") as f:
     defaults_frontend = json.load(f)["frontend"]
-    logging.info(f'SUCCESS! Loaded: {defaults_frontend}')
+    logging.info(f' [START] SUCCESS! Loaded: {DEFAULTS_PATH}')
+    logging.info(f' [START] {len(defaults_frontend['vllm_supported_architectures'])} supported vLLM architectures found!')
 
 
 
