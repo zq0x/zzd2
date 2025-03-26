@@ -1471,12 +1471,12 @@ def create_app():
                 with gr.Row(visible=False) as row_download:
                     btn_dl = gr.Button("DOWNLOAD", variant="primary")
                 with gr.Row(visible=False) as vllm_load_actions:
-                    btn_load_vllm = gr.Button("DEPLOY")
+                    btn_deploy_load = gr.Button("DEPLOY")
                     # btn_vllm_running2 = gr.Button("CLEAR NU GO 1370")
                     # btn_vllm_running3 = gr.Button("CLEAR TORCH", visible=True)
                 with gr.Row(visible=False) as vllm_create_actions:
-                    btn_create_vllm = gr.Button("CREATE", variant="primary")
-                    btn_create_vllm_close = gr.Button("CANCEL")
+                    btn_deploy_create = gr.Button("CREATE", variant="primary")
+                    btn_deploy_create_close = gr.Button("CANCEL")
             
             
         with gr.Row(visible=False) as row_prompt:
@@ -1600,7 +1600,7 @@ def create_app():
         ).then(
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
-            [output,row_download,btn_load_vllm]
+            [output,row_download,btn_deploy_load]
         )
 
 
@@ -1617,25 +1617,28 @@ def create_app():
         )
 
 
-        btn_create_vllm.click(
+        btn_deploy_create.click(
             lambda: [gr.update(visible=False), gr.update(visible=True), gr.update(visible=True)], 
             None, 
-            [row_select_vllm, btn_create_vllm_close, vllm_create_settings]
+            [row_select_vllm, btn_deploy_create_close, vllm_create_settings]
         )
         
-        btn_create_vllm_close.click(
+        btn_deploy_create_close.click(
             lambda: [gr.update(visible=True), gr.update(visible=False), gr.update(visible=False)], 
             None, 
-            [row_select_vllm, btn_create_vllm_close, vllm_create_settings]
+            [row_select_vllm, btn_deploy_create_close, vllm_create_settings]
         )
 
 
 
-
-        btn_load_vllm.click(
+        btn_deploy_load.click(
+            lambda: gr.update(label="Deploying"),
+            None,
+            output
+        ).then(
             lambda: gr.update(visible=False, open=False), 
             None, 
-            vllm_load_settings            
+            vllm_load_settings    
         ).then(
             lambda: gr.update(visible=False), 
             None, 
@@ -1651,14 +1654,18 @@ def create_app():
         ).then(
             lambda: gr.update(visible=False), 
             None, 
-            btn_load_vllm
+            btn_deploy_load
         ).then(
             lambda: gr.update(visible=True), 
             None, 
             row_prompt
         )
-        
-        btn_create_vllm.click(
+
+        btn_deploy_create.click(
+            lambda: gr.update(label="Deploying"),
+            None,
+            output
+        ).then(
             llm_create,
             vllm_create_components.to_list(),
             [output]
@@ -2035,9 +2042,7 @@ def create_app():
 
 
         btn_dl.click(
-            lambda: gr.update(
-                label="Starting download",
-                visible=True),
+            lambda: gr.update(label="Starting download",visible=True),
             None,
             output
         ).then(
