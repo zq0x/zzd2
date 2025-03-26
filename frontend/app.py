@@ -19,122 +19,6 @@ from huggingface_hub import snapshot_download
 import logging
 import psutil
 
-vllm_supported_architectures = [
-    "aquilaforcausallm",
-    "aquilamodel",
-    "arcticforcausallm",
-    "baichuanforcausallm",
-    "bloomforcausallm",
-    "bartforconditionalgeneration",
-    "bartmodel",
-    "chatglmmodel",
-    "cohereforcausallm",
-    "cohere2forcausallm",
-    "dbrxforcausallm",
-    "decilmforcausallm",
-    "deepseekforcausallm",
-    "deepseekv2forcausallm",
-    "deepseekv3forcausallm",
-    "exaoneforcausallm",
-    "falconforcausallm",
-    "falconmambaforcausallm",
-    "gemmaforcausallm",
-    "gemma2forcausallm",
-    "gemma3forcausallm",
-    "glmforcausallm",
-    "gpt2lmheadmodel",
-    "gptbigcodeforcausallm",
-    "gptjforcausallm",
-    "gptneoxforcausallm",
-    "graniteforcausallm",
-    "granitemoeforcausallm",
-    "granitemoessharedforcausallm",
-    "gritlm",
-    "grok1modelforcausallm",
-    "internlmforcausallm",
-    "internlm2forcausallm",
-    "internlm3forcausallm",
-    "jaislmheadmodel",
-    "jambaforcausallm",
-    "llamaforcausallm",
-    "mambaforcausallm",
-    "mistralmodel",
-    "minicpmforcausallm",
-    "minicpm3forcausallm",
-    "mistralforcausallm",
-    "mixtralforcausallm",
-    "mptforcausallm",
-    "nemotronforcausallm",
-    "olmoforcausallm",
-    "olmo2forcausallm",
-    "olmoeforcausallm",
-    "optforcausallm",
-    "orionforcausallm",
-    "phiforcausallm",
-    "phi3forcausallm",
-    "phi3smallforcausallm",
-    "phimoeforcausallm",
-    "persimmonforcausallm",
-    "qwenlmheadmodel",
-    "qwen2forcausallm",
-    "qwen2moeforcausallm",
-    "stablelmalphaforcausallm",    
-    "stablelmforcausallm",
-    "starcoder2forcausallm",
-    "solarforcausallm",
-    "telechat2forcausallm",
-    "teleflmmodel",    
-    "teleflmforcausallm",    
-    "xverseforcausallm",
-    "bertmodel",
-    "gemma2model",
-    "llamamodel",
-    "qwen2model",
-    "robertamodel",
-    "xlmrobertamodel",
-    "internlm2forrewardmodel",
-    "qwen2forrewardmodel",
-    "qwen2forprocessrewardmodel",
-    "jambaforsequenceclassification",
-    "qwen2forsequenceclassification",
-    "bertforsequenceclassification",
-    "robertaforsequenceclassification",
-    "xlmrobertaforsequenceclassification",
-    "ariaforconditionalgeneration",
-    "blip2forconditionalgeneration",
-    "chameleonforconditionalgeneration",
-    "deepseekvlv2forcausallm",
-    "florence2forconditionalgeneration",
-    "fuyuforcausallm",
-    "gemma3forconditionalgeneration",
-    "glm4vforcausallm",
-    "h2ovlchatmodel",
-    "idefics3forconditionalgeneration",
-    "internvlchatmodel",
-    "llavaforconditionalgeneration",
-    "llavanextforconditionalgeneration",
-    "llavanextvideoforconditionalgeneration",
-    "llavaonevisionforconditionalgeneration",
-    "minicpmo",
-    "minicpmv",
-    "mllamaforconditionalgeneration",
-    "molmoforcausallm",
-    "nvlm_d_model",
-    "paligemmaforconditionalgeneration",
-    "phi3vforcausallm",
-    "phi4mmforcausallm",
-    "pixtralforconditionalgeneration",
-    "qwenvlforconditionalgeneration",
-    "qwen2audioforconditionalgeneration",
-    "qwen2vlforconditionalgeneration",
-    "qwen2_5_vlforconditionalgeneration",
-    "ultravoxmodel",
-    "llavanextforconditionalgeneration",
-    "phi3vforcausallm",
-    "qwen2vlforconditionalgeneration",
-    "zamba2forcausallm",
-    "whisper"
-]
 
 
 
@@ -153,6 +37,11 @@ def wait_for_backend(backend_url, timeout=300):
         time.sleep(5)  # Wait for 5 seconds before retrying
     print(f"Timeout: Backend container did not come online within {timeout} seconds.")
     return False
+
+defaults_frontend = json.load(open('utils/defaults.json'))['frontend']
+
+# print(defaults_frontend['default_input_1'])  # "Hello"
+# print(defaults_frontend['vllm_supported_architectures'])  # ["aquilaforcausallm", ...]
 
 docker_container_list = []
 current_models_data = []
@@ -578,7 +467,6 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     global GLOBAL_MEM_FREE
     
 
-    global vllm_supported_architectures
     
     
     # check CUDA support mit backend call
@@ -634,7 +522,7 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
     print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] **************** [gr_load_check] selected_model_architectures.lower() : {selected_model_architectures.lower()}')
     logging.info(f' **************** [gr_load_check] selected_model_architectures.lower() : {selected_model_architectures.lower()}')
 
-    if selected_model_architectures.lower() not in vllm_supported_architectures:
+    if selected_model_architectures.lower() not in defaults_frontend['vllm_supported_architectures']:
         if selected_model_transformers != 'True':   
             return f'Selected model architecture is not supported by vLLM but transformers are available (you may try to load the model in gradio Interface)', gr.update(visible=True), gr.update(visible=True)
         else:
@@ -1539,8 +1427,8 @@ def create_app():
                         port_model = gr.Number(value=8001,visible=False,label="Port of model: ")
                         port_vllm = gr.Number(value=8000,visible=False,label="Port of vLLM: ")
                         
-                
-        # hier 2
+        output = gr.Textbox(label="Output", show_label=True, visible=True)   
+        # aaaa
         with gr.Row(visible=True) as row_vllm:
             with gr.Column(scale=4):
                 
@@ -1571,11 +1459,7 @@ def create_app():
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
-                    
-                output = gr.Textbox(label="Output", show_label=True, visible=True) 
 
-                
-                
 
             with gr.Column(scale=1):
                 with gr.Row(visible=False) as row_download:
@@ -1711,10 +1595,6 @@ def create_app():
             gr_load_check, 
             [selected_model_id, selected_model_architectures, selected_model_pipeline_tag, selected_model_transformers, selected_model_size, selected_model_private, selected_model_gated, selected_model_model_type, selected_model_quantization],
             [output,row_download,btn_load_vllm]
-        ).then(
-            lambda: gr.update(visible=False), 
-            None, 
-            row_vllm
         )
 
 
