@@ -1,8 +1,9 @@
 FROM python:3.12-slim
 
+COPY ./utils/ .
+
 WORKDIR /usr/src/app
 
-COPY ./utils/ .
 COPY . .
 
 RUN pip install -r requirements.txt
