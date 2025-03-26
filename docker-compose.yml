@@ -70,6 +70,7 @@ services:
       - VLLM_PORT=1370
     volumes:
       - ./frontend:/usr/src/app
+      - ./utils:/usr/src/app
       - ../logs:/usr/src/app/logs
       - /models:/models
     deploy:

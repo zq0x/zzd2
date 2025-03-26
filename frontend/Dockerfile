@@ -1,7 +1,5 @@
 FROM python:3.12-slim
 
-COPY ./utils/ .
-
 WORKDIR /usr/src/app
 
 COPY . .
