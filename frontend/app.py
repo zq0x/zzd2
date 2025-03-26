@@ -38,7 +38,7 @@ def wait_for_backend(backend_url, timeout=300):
     print(f"Timeout: Backend container did not come online within {timeout} seconds.")
     return False
 
-defaults_frontend = json.load(open('utils/defaults.json'))['frontend']
+defaults_frontend = json.load(open('./utils/defaults.json'))['frontend']
 
 # print(defaults_frontend['default_input_1'])  # "Hello"
 # print(defaults_frontend['vllm_supported_architectures'])  # ["aquilaforcausallm", ...]
