@@ -6,6 +6,7 @@ import time
 import os
 import requests
 import json
+from pathlib import Path
 import subprocess
 import sys
 import ast
@@ -38,8 +39,12 @@ def wait_for_backend(backend_url, timeout=300):
     print(f"Timeout: Backend container did not come online within {timeout} seconds.")
     return False
 
-defaults_frontend = json.load(open('./utils/defaults.json'))['frontend']
+# defaults_frontend = json.load(open('./utils/defaults.json'))['frontend'] nu work
 
+# defaults_frontend = json.load(open('utils/defaults.json'))['frontend']
+
+defaults_path = Path(__file__).parent.parent / "utils" / "defaults.json"
+defaults_frontend = json.loads(defaults_path.read_text())['frontend']
 # print(defaults_frontend['default_input_1'])  # "Hello"
 # print(defaults_frontend['vllm_supported_architectures'])  # ["aquilaforcausallm", ...]
 
