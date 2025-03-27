@@ -1804,18 +1804,39 @@ def create_app():
             row_prompt
         )
 
+
+
+
+
+
         btn_deploy_create.click(
             lambda: gr.update(label="Deploying"),
             None,
             output
         ).then(
+            lambda: gr.update(visible=False, open=False), 
+            None, 
+            vllm_create_settings    
+        ).then(
+            lambda: gr.update(visible=False), 
+            None, 
+            row_select_vllm   
+        ).then(
             llm_create,
             vllm_create_components.to_list(),
             [output]
         ).then(
-            lambda: gr.update(open=False), 
+            lambda: gr.update(visible=True, open=True), 
             None, 
-            vllm_load_settings
+            vllm_prompt_settings
+        ).then(
+            lambda: gr.update(visible=False), 
+            None, 
+            btn_deploy_load
+        ).then(
+            lambda: gr.update(visible=True), 
+            None, 
+            row_prompt
         )
 
 
