@@ -933,18 +933,20 @@ class PromptValues:
 
 @dataclass
 class VllmCreateComponents:
-    create_max_model_len: gr.Slider
-    create_tensor_parallel_size: gr.Number
-    create_gpu_memory_utilization: gr.Slider
+    image: gr.Dropdown
+    max_model_len: gr.Slider
+    tensor_parallel_size: gr.Number
+    gpu_memory_utilization: gr.Slider
     
     def to_list(self) -> list:
         return [getattr(self, f.name) for f in fields(self)]
 
 @dataclass
 class VllmCreateValues:
-    create_max_model_len: int
-    create_tensor_parallel_size: int
-    create_gpu_memory_utilization: int
+    image: str
+    max_model_len: int
+    tensor_parallel_size: int
+    gpu_memory_utilization: int
 
 @dataclass
 class VllmLoadComponents:
@@ -1167,11 +1169,11 @@ def llm_create(*params):
         # vllm/vllm-openai:latest
         response = requests.post(BACKEND_URL, json={
             "req_method":"create",
-            "image":"xoo4foo/zvllm21:latest",
+            "image":req_params.image,
             "model_id":GLOBAL_SELECTED_MODEL_ID,
-            "max_model_len":req_params.create_max_model_len,
-            "tensor_parallel_size":req_params.create_tensor_parallel_size,
-            "gpu_memory_utilization":req_params.create_gpu_memory_utilization,
+            "max_model_len":req_params.max_model_len,
+            "tensor_parallel_size":req_params.tensor_parallel_size,
+            "gpu_memory_utilization":req_params.gpu_memory_utilization,
             "port_vllm":8002,
             "port_model":8002,
             "runtime":"nvidia",
@@ -1448,9 +1450,10 @@ def create_app():
                     
                 with gr.Accordion(("Create vLLM Parameters"), open=True, visible=False) as vllm_create_settings:
                     vllm_create_components = VllmCreateComponents(
-                        create_max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
-                        create_tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
-                        create_gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
+                        image=gr.Dropdown(["xoo4foo/zvllm21:latest", "vllm/vllm-openai:latest", "bird"], value="xoo4foo/zvllm21:latest", label="Image", info="Select a vLLM image"),
+                        max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
+                        tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
+                        gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
                     )
                     
                     
