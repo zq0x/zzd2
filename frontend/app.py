@@ -1152,7 +1152,7 @@ def llm_load(*params):
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
         return f'{e}'
         
-    
+# aaaaa
 def llm_create(*params):
     
     try:
@@ -1170,8 +1170,8 @@ def llm_create(*params):
             "max_model_len":req_params.create_max_model_len,
             "tensor_parallel_size":req_params.create_tensor_parallel_size,
             "gpu_memory_utilization":req_params.create_gpu_memory_utilization,
-            "req_port_vllm":8000,
-            "req_port_model":8001,
+            "req_port_vllm":8002,
+            "req_port_model":8002,
             "req_runtime":"nvidia"
         }, timeout=REQUEST_TIMEOUT)
 

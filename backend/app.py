@@ -607,15 +607,26 @@ async def docker_rest(request: Request):
 
         if req_data["req_method"] == "create":
             try:
-                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create >>>>>>>>>>>')
-                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create >>>>>>>>>>> ')
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 1 >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 1  >>>>>>>>>>> ')
                 
                 
                 container_name = str(req_data["model_id"]).replace('/', '_')
                 container_name = f'vllm_{container_name}'
+                
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 2 >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 2  >>>>>>>>>>> ')
+                
                 res_db_gpu = await r.get('db_gpu')
+                
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 3 >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 3  >>>>>>>>>>> ')
+                
+                
                 if res_db_gpu is not None:
-                    db_gpu = json.loads(res_db_gpu)                    
+                    db_gpu = json.loads(res_db_gpu)         
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 4 >>>>>>>>>>>')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 4  >>>>>>>>>>> ')           
 
                     print(f'SHOULD RESET MEMORY BUT DOESNT DO YEt -> req 1370 clear or in load direct')
                     # torch.cuda.empty_cache()
@@ -661,6 +672,11 @@ async def docker_rest(request: Request):
                     
                     all_used_ports += [req_data["req_port_vllm"],req_data["req_port_model"]]
                     all_used_models += [req_data["req_port_model"]]
+                    
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 5 >>>>>>>>>>>')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 5  >>>>>>>>>>> ')
+                    
+                    
                     add_data = {
                         "gpu": 0, 
                         "gpu_info": "0",
@@ -673,9 +689,14 @@ async def docker_rest(request: Request):
                     }
                     
                     db_gpu += [add_data]
-                    await r.set('db_gpu', json.dumps(db_gpu))                
+                    # await r.set('db_gpu', json.dumps(db_gpu))                
                 
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 6 >>>>>>>>>>>')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 6  >>>>>>>>>>> ')
                 else:
+                    
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 7 >>>>>>>>>>>')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 7  >>>>>>>>>>> ')
                     add_data = {
                         "gpu": 0, 
                         "gpu_info": "0",
@@ -686,11 +707,26 @@ async def docker_rest(request: Request):
                         "used_ports": f'{str(req_data["req_port_vllm"])},{str(req_data["req_port_model"])}',
                         "used_models": str(str(req_data["model_id"]))
                     }
-                    await r.set('db_gpu', json.dumps(add_data))
-                        
+                    # await r.set('db_gpu', json.dumps(add_data))
+
+
+
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 8 >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 8  >>>>>>>>>>> ')
+
                 print(f'finding containers to stop to free GPU memory...')
                 container_list = client.containers.list(all=True)
+                
+                
+                
+                
                 print(f'found total containers: {len(container_list)}')
+                
+                
+                
+                
+                
+                
                 # docker_container_list = get_docker_container_list()
                 # docker_container_list_running = [c for c in docker_container_list if c["State"]["Status"] == "running"]
                 
@@ -710,7 +746,12 @@ async def docker_rest(request: Request):
                 #     time.sleep(2)
                 #     vllm_containers_running = [c for c in container_list if c.name.startswith("vllm") and c.status == "running"]
                 # print(f'all vLLM containers stopped successfully') 
-                                
+                               
+                               
+                               
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> ')
+
                 res_container = client.containers.run(
                     "vllm/vllm-openai:latest",
                     command=f'--model {req_data["model_id"]} --tensor-parallel-size 1',
@@ -724,7 +765,18 @@ async def docker_rest(request: Request):
                     device_requests=[device_request],
                     detach=True
                 )
+                
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> ')
+
+                
                 container_id = res_container.id
+                
+                
+                
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 10 >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 10  >>>>>>>>>>> ')
+
                 return JSONResponse({"result_status": 200, "result_data": str(container_id)})
 
             except Exception as e:
