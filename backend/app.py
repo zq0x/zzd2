@@ -605,6 +605,132 @@ async def docker_rest(request: Request):
         logging.info(f' *** req_data')
         logging.info(f' *** {req_data}')
 
+        if req_data["req_method"] == "create":
+            try:
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create >>>>>>>>>>> ')
+                
+                
+                container_name = str(req_data["model_id"]).replace('/', '_')
+                container_name = f'vllm_{container_name}'
+                res_db_gpu = await r.get('db_gpu')
+                if res_db_gpu is not None:
+                    db_gpu = json.loads(res_db_gpu)                    
+
+                    print(f'SHOULD RESET MEMORY BUT DOESNT DO YEt -> req 1370 clear or in load direct')
+                    # torch.cuda.empty_cache()
+                    # torch.cuda.reset_max_memory_allocated()
+                    
+                    
+                    
+                    # # check if model already downloaded/downloading
+                    # all_used_models = [g["used_models"] for g in db_gpu]
+                    # print(f'all_used_models {all_used_models}')
+                    # if req_data["model_id"] in all_used_models:
+                    #     return JSONResponse({"result": 302, "result_data": "Model already downloaded. Trying to start container ..."})
+                    
+                    # # check if ports already used
+                    # all_used_ports = [db_gpu_entry["used_ports"] for db_gpu_entry in db_gpu]
+                    # print(f'all_used_ports {all_used_ports}')
+                    # if req_data["req_port_vllm"] in all_used_ports or req_data["req_port_model"] in all_used_ports:
+                    #     return JSONResponse({"result": 409, "result_data": "Error: Port already in use"})
+                    
+                    # # check if memory available
+                    # current_gpu_info = get_gpu_info()
+                    # if current_gpu_info[0]["mem_util"] > 50:
+                    #     all_running_models = [g["running_model"] for g in db_gpu]
+                    #     print(f'all_running_models {all_running_models}')
+                    #     for running_model in all_running_models:
+                    #         req_container = client.containers.get(req_data["model_id"])
+                    #         req_container.stop()
+                        
+                    # # wait for containers to stop
+                    # for i in range(10):
+                    #     current_gpu_info = get_gpu_info()
+                    #     if current_gpu_info[0]["mem_util"] <= 80:
+                    #         continue
+                    #     else:
+                    #         if i == 9:
+                    #             return JSONResponse({"result": 500, "result_data": "Error: Memory > 80%"})
+                    #         else:
+                    #             time.sleep(1)
+                    
+                    # get all used ports
+                    all_used_ports = []
+                    all_used_models = []
+                    
+                    all_used_ports += [req_data["req_port_vllm"],req_data["req_port_model"]]
+                    all_used_models += [req_data["req_port_model"]]
+                    add_data = {
+                        "gpu": 0, 
+                        "gpu_info": "0",
+                        "running_model": str(container_name),
+                        "timestamp": str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                        "port_vllm": req_data["req_port_vllm"],
+                        "port_model": req_data["req_port_model"],
+                        "used_ports": str(all_used_ports),
+                        "used_models": str(all_used_models)
+                    }
+                    
+                    db_gpu += [add_data]
+                    await r.set('db_gpu', json.dumps(db_gpu))                
+                
+                else:
+                    add_data = {
+                        "gpu": 0, 
+                        "gpu_info": "0",
+                        "running_model": str(container_name),
+                        "timestamp": str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+                        "port_vllm": str(req_data["req_port_vllm"]),
+                        "port_model": str(req_data["req_port_model"]),
+                        "used_ports": f'{str(req_data["req_port_vllm"])},{str(req_data["req_port_model"])}',
+                        "used_models": str(str(req_data["model_id"]))
+                    }
+                    await r.set('db_gpu', json.dumps(add_data))
+                        
+                print(f'finding containers to stop to free GPU memory...')
+                container_list = client.containers.list(all=True)
+                print(f'found total containers: {len(container_list)}')
+                # docker_container_list = get_docker_container_list()
+                # docker_container_list_running = [c for c in docker_container_list if c["State"]["Status"] == "running"]
+                
+                # res_container_list = client.containers.list(all=True)
+                # return JSONResponse([container.attrs for container in res_container_list])
+                
+                # print(f'mhmmhmhmh')
+                # vllm_containers_running = [c for c in container_list if c.name.startswith("vllm") and c.status == "running"]
+                # print(f'found total vLLM running containers: {len(vllm_containers_running)}')
+                # while len(vllm_containers_running) > 0:
+                #     print(f'stopping all vLLM containers...')
+                #     for vllm_container in vllm_containers_running:
+                #         print(f'stopping container {vllm_container.name}...')
+                #         vllm_container.stop()
+                #         vllm_container.wait()
+                #     print(f'waiting for containers to stop...')
+                #     time.sleep(2)
+                #     vllm_containers_running = [c for c in container_list if c.name.startswith("vllm") and c.status == "running"]
+                # print(f'all vLLM containers stopped successfully') 
+                                
+                res_container = client.containers.run(
+                    "vllm/vllm-openai:latest",
+                    command=f'--model {req_data["model_id"]} --tensor-parallel-size 1',
+                    name=container_name,
+                    runtime=req_data["req_runtime"],
+                    volumes={"/home/cloud/.cache/huggingface": {"bind": "/root/.cache/huggingface", "mode": "rw"}},
+                    ports={
+                        f'{req_data["req_port_vllm"]}/tcp': ("0.0.0.0", req_data["req_port_model"])
+                    },
+                    ipc_mode="host",
+                    device_requests=[device_request],
+                    detach=True
+                )
+                container_id = res_container.id
+                return JSONResponse({"result_status": 200, "result_data": str(container_id)})
+
+            except Exception as e:
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
+                r.delete(f'running_model:{str(req_data["model_id"])}')
+                return JSONResponse({"result_status": 404, "result_data": f'{req_data["max_model_len"]}'})
                          
         if req_data["req_method"] == "test":
             print(f'got test!')
@@ -702,129 +828,6 @@ async def docker_rest(request: Request):
             req_container.start()
             return JSONResponse({"result": 200})
 
-        if req_data["req_method"] == "create":
-            try:
-                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>>')
-                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>> ')
-                
-                
-                container_name = str(req_data["model_id"]).replace('/', '_')
-                container_name = f'vllm_{container_name}'
-                res_db_gpu = await r.get('db_gpu')
-                if res_db_gpu is not None:
-                    db_gpu = json.loads(res_db_gpu)                    
-
-                    print(f'SHOULD RESET MEMORY BUT DOESNT DO YEt -> req 1370 clear or in load direct')
-                    # torch.cuda.empty_cache()
-                    # torch.cuda.reset_max_memory_allocated()
-                    
-                    
-                    
-                    # # check if model already downloaded/downloading
-                    # all_used_models = [g["used_models"] for g in db_gpu]
-                    # print(f'all_used_models {all_used_models}')
-                    # if req_data["model_id"] in all_used_models:
-                    #     return JSONResponse({"result": 302, "result_data": "Model already downloaded. Trying to start container ..."})
-                    
-                    # # check if ports already used
-                    all_used_ports = [db_gpu_entry["used_ports"] for db_gpu_entry in db_gpu]
-                    print(f'all_used_ports {all_used_ports}')
-                    if req_data["req_port_vllm"] in all_used_ports or req_data["req_port_model"] in all_used_ports:
-                        return JSONResponse({"result": 409, "result_data": "Error: Port already in use"})
-                    
-                    # # check if memory available
-                    # current_gpu_info = get_gpu_info()
-                    # if current_gpu_info[0]["mem_util"] > 50:
-                    #     all_running_models = [g["running_model"] for g in db_gpu]
-                    #     print(f'all_running_models {all_running_models}')
-                    #     for running_model in all_running_models:
-                    #         req_container = client.containers.get(req_data["model_id"])
-                    #         req_container.stop()
-                        
-                    # # wait for containers to stop
-                    # for i in range(10):
-                    #     current_gpu_info = get_gpu_info()
-                    #     if current_gpu_info[0]["mem_util"] <= 80:
-                    #         continue
-                    #     else:
-                    #         if i == 9:
-                    #             return JSONResponse({"result": 500, "result_data": "Error: Memory > 80%"})
-                    #         else:
-                    #             time.sleep(1)
-                    
-                    # get all used ports
-                    all_used_ports += [req_data["req_port_vllm"],req_data["req_port_model"]]
-                    all_used_models += [req_data["req_port_model"]]
-                    add_data = {
-                        "gpu": 0, 
-                        "gpu_info": "0",
-                        "running_model": str(container_name),
-                        "timestamp": str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                        "port_vllm": req_data["req_port_vllm"],
-                        "port_model": req_data["req_port_model"],
-                        "used_ports": str(all_used_ports),
-                        "used_models": str(all_used_models)
-                    }
-                    
-                    db_gpu += [add_data]
-                    await r.set('db_gpu', json.dumps(db_gpu))                
-                
-                else:
-                    add_data = {
-                        "gpu": 0, 
-                        "gpu_info": "0",
-                        "running_model": str(container_name),
-                        "timestamp": str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                        "port_vllm": str(req_data["req_port_vllm"]),
-                        "port_model": str(req_data["req_port_model"]),
-                        "used_ports": f'{str(req_data["req_port_vllm"])},{str(req_data["req_port_model"])}',
-                        "used_models": str(str(req_data["model_id"]))
-                    }
-                    await r.set('db_gpu', json.dumps(add_data))
-                        
-                print(f'finding containers to stop to free GPU memory...')
-                container_list = client.containers.list(all=True)
-                print(f'found total containers: {len(container_list)}')
-                # docker_container_list = get_docker_container_list()
-                # docker_container_list_running = [c for c in docker_container_list if c["State"]["Status"] == "running"]
-                
-                # res_container_list = client.containers.list(all=True)
-                # return JSONResponse([container.attrs for container in res_container_list])
-                
-                # print(f'mhmmhmhmh')
-                # vllm_containers_running = [c for c in container_list if c.name.startswith("vllm") and c.status == "running"]
-                # print(f'found total vLLM running containers: {len(vllm_containers_running)}')
-                # while len(vllm_containers_running) > 0:
-                #     print(f'stopping all vLLM containers...')
-                #     for vllm_container in vllm_containers_running:
-                #         print(f'stopping container {vllm_container.name}...')
-                #         vllm_container.stop()
-                #         vllm_container.wait()
-                #     print(f'waiting for containers to stop...')
-                #     time.sleep(2)
-                #     vllm_containers_running = [c for c in container_list if c.name.startswith("vllm") and c.status == "running"]
-                # print(f'all vLLM containers stopped successfully') 
-                                
-                res_container = client.containers.run(
-                    "vllm/vllm-openai:latest",
-                    command=f'--model {req_data["model_id"]} --tensor-parallel-size 1',
-                    name=container_name,
-                    runtime=req_data["req_runtime"],
-                    volumes={"/home/cloud/.cache/huggingface": {"bind": "/root/.cache/huggingface", "mode": "rw"}},
-                    ports={
-                        f'{req_data["req_port_vllm"]}/tcp': ("0.0.0.0", req_data["req_port_model"])
-                    },
-                    ipc_mode="host",
-                    device_requests=[device_request],
-                    detach=True
-                )
-                container_id = res_container.id
-                return JSONResponse({"result_status": 200, "result_data": str(container_id)})
-
-            except Exception as e:
-                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
-                r.delete(f'running_model:{str(req_data["model_id"])}')
-                return JSONResponse({"result_status": 404, "result_data": f'{req_data["max_model_len"]}'})
 
     except Exception as e:
         print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
