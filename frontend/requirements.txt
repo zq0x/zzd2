@@ -5,3 +5,4 @@ pandas
 redis
 huggingface_hub
 psutil
+faster-whisper

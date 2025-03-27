@@ -18,7 +18,7 @@ import huggingface_hub
 from huggingface_hub import snapshot_download
 import logging
 import psutil
-
+from faster_whisper import WhisperModel
 
 
 
@@ -524,7 +524,9 @@ def gr_load_check(selected_model_id, selected_model_architectures, selected_mode
         print(f' **************** NUH UH DIDNT FIND MODEL YET!! {selected_model_id} ist NAWT in {models_found}')
     
     
-        
+    if selected_model_pipeline_tag == 'automatic-speech-recognition':
+        return f'automatic-speech-recognition found!', gr.update(visible=True), gr.update(visible=True)
+       
     if selected_model_architectures == '':
         return f'Selected model has no architecture', gr.update(visible=False), gr.update(visible=False)
     
@@ -1475,6 +1477,40 @@ def parallel_download(selected_model_size, model_dropdown):
     return "Download finished!"
 
 
+
+
+
+# Initialize the model (will download on first run)
+model_size = "small"  # tiny, base, small, medium, large-v1, large-v2
+model = None
+
+def load_audio_model():
+    global model
+    if model is None:
+        model = WhisperModel(model_size, device="cpu", compute_type="int8")
+
+def transcribe_audio(audio_file):
+    # Load model if not loaded
+    load_audio_model()
+    
+    # Transcribe the audio file
+    start_time = time.time()
+    segments, info = model.transcribe(audio_file)
+    
+    # Combine all segments into one text
+    full_text = "\n".join([segment.text for segment in segments])
+    
+    # Calculate processing time
+    processing_time = time.time() - start_time
+    
+    return f"Detected language: {info.language}\n\n{full_text}\n\nProcessing time: {processing_time:.2f}s"
+
+
+
+
+
+
+
 def create_app():
     with gr.Blocks() as app:
         gr.Markdown(
@@ -1623,17 +1659,23 @@ def create_app():
         #                 morning=gr.Checkbox(label="Morning", value=True, info="Did they do it in the morning?")
         #             )
 
+                        
+        with gr.Row(visible=True) as row_audio:
+            gr.Markdown("## Faster-Whisper Audio Transcription")
+            gr.Markdown("Upload an audio file to transcribe it using a faster-whisper model.")
+            with gr.Column(scale=2):
+                audio_input = gr.Audio(label="Upload Audio", type="filepath")
                 
 
-    
-
-
-        
-                
-                
-                
-                
-                
+            with gr.Column(scale=1):
+                text_output = gr.Textbox(label="Transcription", lines=10)
+            
+            transcribe_btn = gr.Button("Transcribe")
+            transcribe_btn.click(
+                transcribe_audio,
+                inputs=audio_input,
+                outputs=text_output
+            )
 
 
          
