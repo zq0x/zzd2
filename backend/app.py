@@ -610,7 +610,7 @@ async def docker_rest(request: Request):
             print("trying request vllm")
             print(req_data["model_id"])
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] test >>>>>>>>>>> trying request vllm ...] {req_data["model_id"]}')
-            VLLM_URL = f'http://container_vllm:{os.getenv("VLLM_PORT")}/vllmt'
+            VLLM_URL = f'http://container_vllm:{os.getenv("VLLM_PORT")}/vllm'
             try:
                 response = requests.post(VLLM_URL, json={
                     "req_type":"load",
@@ -641,7 +641,7 @@ async def docker_rest(request: Request):
             logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>> ')
             
             print("trying request vllm")
-            VLLM_URL = f'http://container_vllm:{os.getenv("VLLM_PORT")}/vllmt'
+            VLLM_URL = f'http://container_vllm:{os.getenv("VLLM_PORT")}/vllm'
             try:
                 response = requests.post(VLLM_URL, json={
                     "req_type":"generate",
