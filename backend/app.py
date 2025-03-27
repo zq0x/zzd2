@@ -749,11 +749,13 @@ async def docker_rest(request: Request):
                                
                                
                 
-                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>>')
-                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> ')
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >> {req_data["image"]}')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >> {req_data["image"]} ')
 
                 if req_data["image"] == "xoo4foo/zvllm21:latest":
-                                        
+                                     
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 11 >> xoo4foo/zvllm21:latest')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 11  >> xoo4foo/zvllm21:latest ')
                     # if container_name in REDIS DB LISTE ODER QUERY 'list' AM BESTEN MIT self. 
                     container_name = f'{container_name}_{str(int(datetime.now().timestamp()))}'
                     
@@ -789,6 +791,8 @@ async def docker_rest(request: Request):
                 
                 if req_data["image"] == "vllm/vllm-openai:latest":
                     
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 12 >> vllm/vllm-openai:latest')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 12  >> vllm/vllm-openai:latest ')
                     # if container_name in REDIS DB LISTE ODER QUERY 'list' AM BESTEN MIT self. 
                     container_name = f'{container_name}_{str(int(datetime.now().timestamp()))}'
                     

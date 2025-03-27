@@ -1167,6 +1167,8 @@ def llm_load(*params):
 def llm_create(*params):
 
     try:
+        print(f' [llm_create]  [llm_create]  [llm_create]  [llm_create]  [llm_create] ')
+        logging.info(f' [llm_create]  [llm_create]  [llm_create]  [llm_create]  [llm_create] ')
         global GLOBAL_SELECTED_MODEL_ID
         global GLOBAL_SELECTED_PROMPT_IMAGE
         print(f' >>> llm_create GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
@@ -1235,14 +1237,14 @@ def llm_prompt(*params):
         global GLOBAL_SELECTED_PROMPT_IMAGE
         
         print(f' >>> llm_prompt GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
-        logging.info(f'[llm_prompt] >> GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        logging.exception(f'[llm_prompt] >> GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
         
         
         if GLOBAL_SELECTED_PROMPT_IMAGE == 'vllm/vllm-openai:latest':
             print(f' >>> llm_prompt GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
             print(f' >>> llm_prompt got params: {params} ')
-            logging.info(f'[llm_prompt] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-            logging.info(f'[llm_prompt] >> got params: {params} ')
+            logging.exception(f'[llm_prompt] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+            logging.exception(f'[llm_prompt] >> got params: {params} ')
 
             req_params = PromptComponents(*params)
 
