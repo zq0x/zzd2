@@ -1171,7 +1171,8 @@ def llm_create(*params):
             "tensor_parallel_size":req_params.create_tensor_parallel_size,
             "gpu_memory_utilization":req_params.create_gpu_memory_utilization,
             "req_port_vllm":8000,
-            "req_port_model":8001
+            "req_port_model":8001,
+            "req_runtime":"nvidia"
         }, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 200:
