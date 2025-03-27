@@ -466,13 +466,13 @@ def get_gpu_info():
                 print(f'4 gpu_info {e}')
 
 
-            try:
-                # Get GPU power usage
-                power_usage = pynvml.nvmlDeviceGetPowerUsage(handle)
-                res_power_usage = f'{power_usage / 1000:.2f} W'
-                current_gpu_info['res_power_usage'] = f'{res_power_usage}'
-            except Exception as e:
-                print(f'5 gpu_info {e}')
+            # try:
+            #     # Get GPU power usage
+            #     power_usage = pynvml.nvmlDeviceGetPowerUsage(handle)
+            #     res_power_usage = f'{power_usage / 1000:.2f} W'
+            #     current_gpu_info['res_power_usage'] = f'{res_power_usage}'
+            # except Exception as e:
+            #     print(f'5 gpu_info {e}')
         
         
             try:
