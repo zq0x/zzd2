@@ -727,10 +727,10 @@ async def docker_rest(request: Request):
                     #     return JSONResponse({"result": 302, "result_data": "Model already downloaded. Trying to start container ..."})
                     
                     # # check if ports already used
-                    # all_used_ports = [g["used_ports"] for g in db_gpu]
-                    # print(f'all_used_ports {all_used_ports}')
-                    # if req_data["req_port_vllm"] in all_used_ports or req_data["req_port_model"] in all_used_ports:
-                    #     return JSONResponse({"result": 409, "result_data": "Error: Port already in use"})
+                    all_used_ports = [db_gpu_entry["used_ports"] for db_gpu_entry in db_gpu]
+                    print(f'all_used_ports {all_used_ports}')
+                    if req_data["req_port_vllm"] in all_used_ports or req_data["req_port_model"] in all_used_ports:
+                        return JSONResponse({"result": 409, "result_data": "Error: Port already in use"})
                     
                     # # check if memory available
                     # current_gpu_info = get_gpu_info()
