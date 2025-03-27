@@ -939,6 +939,8 @@ class VllmCreateComponents:
     max_model_len: gr.Slider
     tensor_parallel_size: gr.Number
     gpu_memory_utilization: gr.Slider
+    port_model: gr.Slider
+    port_vllm: gr.Slider
     
     def to_list(self) -> list:
         return [getattr(self, f.name) for f in fields(self)]
@@ -949,6 +951,11 @@ class VllmCreateValues:
     max_model_len: int
     tensor_parallel_size: int
     gpu_memory_utilization: int
+    port_model: int
+    port_vllm: int
+
+
+
 
 @dataclass
 class VllmLoadComponents:
@@ -1178,6 +1185,18 @@ def llm_create(*params):
         print(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
         logging.info(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
         
+                
+        
+        GLOBAL_SELECTED_PROMPT_IMAGE = req_params.image
+        print(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
+        logging.info(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
+        
+                
+        
+        GLOBAL_SELECTED_PROMPT_IMAGE = req_params.image
+        print(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
+        logging.info(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
+        
         
         # vllm/vllm-openai:latest
         response = requests.post(BACKEND_URL, json={
@@ -1187,8 +1206,8 @@ def llm_create(*params):
             "max_model_len":req_params.max_model_len,
             "tensor_parallel_size":req_params.tensor_parallel_size,
             "gpu_memory_utilization":req_params.gpu_memory_utilization,
-            "port_vllm":8002,
-            "port_model":8002,
+            "port_model":req_params.port_model,
+            "port_vllm":req_params.port_vllm,
             "runtime":"nvidia",
         }, timeout=REQUEST_TIMEOUT)
 
@@ -1491,9 +1510,6 @@ def create_app():
                         with gr.Row():
                             selected_model_config_data = gr.Textbox(label="config_data", lines=20, elem_classes="table-cell")
 
-                    with gr.Row():
-                        port_model = gr.Number(value=8001,visible=False,label="Port of model: ")
-                        port_vllm = gr.Number(value=8000,visible=False,label="Port of vLLM: ")
                         
         output = gr.Textbox(label="Output", show_label=True, visible=True)   
         # aaaa
@@ -1507,9 +1523,11 @@ def create_app():
                 with gr.Accordion(("Create vLLM Parameters"), open=True, visible=False) as vllm_create_settings:
                     vllm_create_components = VllmCreateComponents(
                         image=gr.Dropdown(["xoo4foo/zvllm21:latest", "vllm/vllm-openai:latest", "bird"], value="xoo4foo/zvllm21:latest", label="Image", info="Select a vLLM image"),
-                        max_model_len=gr.Slider(1024, 8192, value=1024, label="max_model_len", info=f"Model context length. If unspecified, will be automatically derived from the model config."),
-                        tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f"Number of tensor parallel replicas."),
-                        gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f"The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.")
+                        max_model_len=gr.Slider(1024, 8192, step=1024, value=1024, label="max_model_len", info=f'Model context length. If unspecified, will be automatically derived from the model config.'),
+                        tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f'Number of tensor parallel replicas.'),
+                        gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f'The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.'),
+                        port_model=gr.Slider(1371, 1471, step=1, value=1371, label="port_model", info=f'CURLable Port.'),
+                        port_vllm=gr.Slider(1371, 1471, step=1, value=1371, label="port_vllm", info=f'vLLM Port')
                     )
                     
                     

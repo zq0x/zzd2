@@ -643,7 +643,7 @@ async def docker_rest(request: Request):
                     # # check if ports already used
                     # all_used_ports = [db_gpu_entry["used_ports"] for db_gpu_entry in db_gpu]
                     # print(f'all_used_ports {all_used_ports}')
-                    # if req_data["req_port_vllm"] in all_used_ports or req_data["req_port_model"] in all_used_ports:
+                    # if req_data["port_vllm"] in all_used_ports or req_data["port_model"] in all_used_ports:
                     #     return JSONResponse({"result": 409, "result_data": "Error: Port already in use"})
                     
                     # # check if memory available
@@ -670,8 +670,8 @@ async def docker_rest(request: Request):
                     all_used_ports = []
                     all_used_models = []
                     
-                    all_used_ports += [req_data["req_port_vllm"],req_data["req_port_model"]]
-                    all_used_models += [req_data["req_port_model"]]
+                    all_used_ports += [req_data["port_vllm"],req_data["port_model"]]
+                    all_used_models += [req_data["port_model"]]
                     
                     print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 5 >>>>>>>>>>>')
                     logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 5  >>>>>>>>>>> ')
@@ -682,8 +682,8 @@ async def docker_rest(request: Request):
                         "gpu_info": "0",
                         "running_model": str(container_name),
                         "timestamp": str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                        "port_vllm": req_data["req_port_vllm"],
-                        "port_model": req_data["req_port_model"],
+                        "port_vllm": req_data["port_vllm"],
+                        "port_model": req_data["port_model"],
                         "used_ports": str(all_used_ports),
                         "used_models": str(all_used_models)
                     }
@@ -702,9 +702,9 @@ async def docker_rest(request: Request):
                         "gpu_info": "0",
                         "running_model": str(container_name),
                         "timestamp": str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                        "port_vllm": str(req_data["req_port_vllm"]),
-                        "port_model": str(req_data["req_port_model"]),
-                        "used_ports": f'{str(req_data["req_port_vllm"])},{str(req_data["req_port_model"])}',
+                        "port_vllm": str(req_data["port_vllm"]),
+                        "port_model": str(req_data["port_model"]),
+                        "used_ports": f'{str(req_data["port_vllm"])},{str(req_data["port_model"])}',
                         "used_models": str(str(req_data["model_id"]))
                     }
                     # await r.set('db_gpu', json.dumps(add_data))
