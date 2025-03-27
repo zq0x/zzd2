@@ -1480,7 +1480,7 @@ def create_app():
             
             
         with gr.Row(visible=False) as row_prompt:
-            with gr.Column(scale=4):
+            with gr.Column(scale=2):
                 with gr.Accordion(("Prompt Parameters"), open=True) as vllm_prompt_settings:
                     llm_prompt_components = PromptComponents(
                     prompt_in = gr.Textbox(placeholder="Ask a question", value="Follow the", label="Prompt", show_label=True, visible=True),
@@ -1489,8 +1489,10 @@ def create_app():
                     max_tokens=gr.Slider(50, 2500, step=25, value=150, label="max_tokens", info=f'Maximum number of tokens to generate per output sequence')
                 )  
             with gr.Column(scale=1):
+                with gr.Row() as vllm_prompt_output:
+                    output_prompt = gr.Textbox(label="Prompt Output", show_label=True)
                 with gr.Row() as vllm_prompt:
-                    prompt_btn = gr.Button("PROMPT", visible=True)
+                    prompt_btn = gr.Button("PROMPT")
 
 
         gpu_dataframe = gr.Dataframe(label="GPU information")
@@ -1680,7 +1682,7 @@ def create_app():
         prompt_btn.click(
             llm_prompt,
             llm_prompt_components.to_list(),
-            [output]
+            [output_prompt]
         )
 
 
