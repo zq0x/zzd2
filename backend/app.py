@@ -795,6 +795,9 @@ async def docker_rest(request: Request):
                     logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 12  >> vllm/vllm-openai:latest ')
                     # if container_name in REDIS DB LISTE ODER QUERY 'list' AM BESTEN MIT self. 
                     container_name = f'{container_name}_{str(int(datetime.now().timestamp()))}'
+                                        
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 13 >> container_name {container_name}')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 13  >> container_name {container_name} ')
                     
                     res_container = client.containers.run(
                         req_data["image"],
@@ -815,8 +818,11 @@ async def docker_rest(request: Request):
                         detach=True
                     )
                 
-                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>> {res_container}')
-                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> {res_container}')
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 14 >>>>>>>>>>> {res_container}')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 14  >>>>>>>>>>> {res_container}')
+                                                
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 15 >>>>>>>>>>> {res_container.id}')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 15  >>>>>>>>>>> {res_container.id}')
                                 
                 # print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>> {res_container.id}')
                 # logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> {res_container.id}')

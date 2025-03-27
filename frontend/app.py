@@ -48,6 +48,8 @@ db_gpu_data_len = ''
 
 GLOBAL_SELECTED_MODEL_ID = ''
 GLOBAL_SELECTED_PROMPT_IMAGE = ''
+GLOBAL_SELECTED_PROMPT_PORT_MODEL = 0
+GLOBAL_SELECTED_PROMPT_PORT_VLLM = 0
 GLOBAL_MEM_TOTAL = 0
 GLOBAL_MEM_USED = 0
 GLOBAL_MEM_FREE = 0
@@ -1171,11 +1173,17 @@ def llm_create(*params):
         logging.info(f' [llm_create]  [llm_create]  [llm_create]  [llm_create]  [llm_create] ')
         global GLOBAL_SELECTED_MODEL_ID
         global GLOBAL_SELECTED_PROMPT_IMAGE
+        global GLOBAL_SELECTED_PROMPT_PORT_MODEL
+        global GLOBAL_SELECTED_PROMPT_PORT_VLLM
         print(f' >>> llm_create GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         print(f' >>> llm_create GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        print(f' >>> llm_create GLOBAL_SELECTED_PROMPT_PORT_MODEL: {GLOBAL_SELECTED_PROMPT_PORT_MODEL} ')
+        print(f' >>> llm_create GLOBAL_SELECTED_PROMPT_PORT_VLLM: {GLOBAL_SELECTED_PROMPT_PORT_VLLM} ')
         print(f' >>> llm_create got params: {params} ')
         logging.info(f'[llm_create] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
         logging.info(f'[llm_create] >> GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        logging.info(f'[llm_create] >> GLOBAL_SELECTED_PROMPT_PORT_MODEL: {GLOBAL_SELECTED_PROMPT_PORT_MODEL} ')
+        logging.info(f'[llm_create] >> GLOBAL_SELECTED_PROMPT_PORT_VLLM: {GLOBAL_SELECTED_PROMPT_PORT_VLLM} ')
         logging.info(f'[llm_create] >> got params: {params} ')
 
         
@@ -1186,18 +1194,20 @@ def llm_create(*params):
         GLOBAL_SELECTED_PROMPT_IMAGE = req_params.image
         print(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
         logging.info(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
-        
+        GLOBAL_SELECTED_PROMPT_IMAGE = req_params.image
                 
         
-        GLOBAL_SELECTED_PROMPT_IMAGE = req_params.image
-        print(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
-        logging.info(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
-        
+        GLOBAL_SELECTED_PROMPT_PORT_MODEL = req_params.port_model
+        print(f' >>> SET NEW GLOBAL_SELECTED_PROMPT_PORT_MODEL: {req_params.port_model} ')
+        logging.info(f' >>> SET NEW GLOBAL_SELECTED_PROMPT_PORT_MODEL: {req_params.port_model} ')
+        GLOBAL_SELECTED_PROMPT_PORT_MODEL = req_params.port_model
                 
-        
-        GLOBAL_SELECTED_PROMPT_IMAGE = req_params.image
-        print(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
-        logging.info(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
+        GLOBAL_SELECTED_PROMPT_PORT_VLLM = req_params.port_vllm
+        print(f' >>> SET NEW GLOBAL_SELECTED_PROMPT_PORT_VLLM: {req_params.port_vllm} ')
+        logging.info(f' >>> SET NEW GLOBAL_SELECTED_PROMPT_PORT_VLLM: {req_params.port_vllm} ')
+        GLOBAL_SELECTED_PROMPT_PORT_VLLM = req_params.port_vllm
+                
+
         
         
         # vllm/vllm-openai:latest
@@ -1235,11 +1245,17 @@ def llm_prompt(*params):
     try:
         global GLOBAL_SELECTED_MODEL_ID
         global GLOBAL_SELECTED_PROMPT_IMAGE
+        global GLOBAL_SELECTED_PROMPT_PORT_MODEL
+        global GLOBAL_SELECTED_PROMPT_PORT_VLLM
         
         print(f' >>> llm_prompt GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        print(f' >>> llm_prompt GLOBAL_SELECTED_PROMPT_PORT_MODEL: {GLOBAL_SELECTED_PROMPT_PORT_MODEL} ')
+        print(f' >>> llm_prompt GLOBAL_SELECTED_PROMPT_PORT_VLLM: {GLOBAL_SELECTED_PROMPT_PORT_VLLM} ')
         logging.exception(f'[llm_prompt] >> GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        logging.exception(f'[llm_prompt] >> GLOBAL_SELECTED_PROMPT_PORT_MODEL: {GLOBAL_SELECTED_PROMPT_PORT_MODEL} ')
+        logging.exception(f'[llm_prompt] >> GLOBAL_SELECTED_PROMPT_PORT_VLLM: {GLOBAL_SELECTED_PROMPT_PORT_VLLM} ')
         
-        
+
         if GLOBAL_SELECTED_PROMPT_IMAGE == 'vllm/vllm-openai:latest':
             print(f' >>> llm_prompt GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
             print(f' >>> llm_prompt got params: {params} ')
