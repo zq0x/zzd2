@@ -45,7 +45,9 @@ docker_container_list = []
 current_models_data = []
 db_gpu_data = []
 db_gpu_data_len = ''
+
 GLOBAL_SELECTED_MODEL_ID = ''
+GLOBAL_SELECTED_PROMPT_IMAGE = ''
 GLOBAL_MEM_TOTAL = 0
 GLOBAL_MEM_USED = 0
 GLOBAL_MEM_FREE = 0
@@ -1156,15 +1158,26 @@ def llm_load(*params):
         
 # aaaaa
 def llm_create(*params):
-    
+
     try:
         global GLOBAL_SELECTED_MODEL_ID
+        global GLOBAL_SELECTED_PROMPT_IMAGE
         print(f' >>> llm_create GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        print(f' >>> llm_create GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
         print(f' >>> llm_create got params: {params} ')
-        logging.exception(f'[llm_create] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        logging.exception(f'[llm_create] >> got params: {params} ')
-                
+        logging.info(f'[llm_create] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+        logging.info(f'[llm_create] >> GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        logging.info(f'[llm_create] >> got params: {params} ')
+
+        
         req_params = VllmCreateValues(*params)
+        
+        
+        
+        GLOBAL_SELECTED_PROMPT_IMAGE = req_params.image
+        print(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
+        logging.info(f' >>> SET NEW PROMPT IMAGE: {req_params.image} ')
+        
         
         # vllm/vllm-openai:latest
         response = requests.post(BACKEND_URL, json={
@@ -1200,38 +1213,81 @@ def llm_prompt(*params):
     
     try:
         global GLOBAL_SELECTED_MODEL_ID
-        print(f' >>> llm_prompt GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        print(f' >>> llm_prompt got params: {params} ')
-        logging.info(f'[llm_prompt] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
-        logging.info(f'[llm_prompt] >> got params: {params} ')
+        global GLOBAL_SELECTED_PROMPT_IMAGE
+        
+        print(f' >>> llm_prompt GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        logging.info(f'[llm_prompt] >> GLOBAL_SELECTED_PROMPT_IMAGE: {GLOBAL_SELECTED_PROMPT_IMAGE} ')
+        
+        
+        if GLOBAL_SELECTED_PROMPT_IMAGE == 'vllm/vllm-openai:latest':
+            print(f' >>> llm_prompt GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+            print(f' >>> llm_prompt got params: {params} ')
+            logging.info(f'[llm_prompt] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+            logging.info(f'[llm_prompt] >> got params: {params} ')
 
-        req_params = PromptComponents(*params)
+            req_params = PromptComponents(*params)
 
-        DEFAULTS_PROMPT = {
-            "prompt_in": "Tell a joke",
-            "top_p": 0.95,
-            "temperature": 0.8,
-            "max_tokens": 150
-        }
+            DEFAULTS_PROMPT = {
+                "model": "Qwen/Qwen2.5-1.5B-Instruct",
+                "role": "user",
+                "content": "What is the capital of Kirgistan?"
+            }
 
-        response = requests.post(BACKEND_URL, json={
-            "req_method":"generate",
-            "prompt_in": getattr(req_params, "prompt_in", DEFAULTS_PROMPT["prompt_in"]),
-            "top_p":getattr(req_params, "top_p", DEFAULTS_PROMPT["top_p"]),
-            "temperature":getattr(req_params, "temperature", DEFAULTS_PROMPT["temperature"]),
-            "max_tokens":getattr(req_params, "max_tokens", DEFAULTS_PROMPT["max_tokens"])
-        }, timeout=REQUEST_TIMEOUT)
+            response = requests.post(BACKEND_URL, json={
+                "model":"Qwen/Qwen2.5-1.5B-Instruct",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "What is the capital of Kirgistan?"
+                    }
+                ]
+            }, timeout=REQUEST_TIMEOUT)
 
-        if response.status_code == 200:
-            print(f' !?!?!?!? [llm_prompt] got response == 200 building json ... {response} ')
-            logging.info(f'!?!?!?!? [llm_prompt] got response == 200 building json ...  {response} ')
-            res_json = response.json()        
-            print(f' !?!?!?!? [llm_prompt] GOT RES_JSON: llm_prompt GLOBAL_SELECTED_MODEL_ID: {res_json} ')
-            logging.info(f'!?!?!?!? [llm_prompt] GOT RES_JSON: {res_json} ')          
-            return f'{res_json}'
-        else:
-            logging.exception(f'[llm_prompt] Request Error: {response}')
-            return f'Request Error: {response}'
+            if response.status_code == 200:
+                print(f' !?!?!?!? [llm_prompt] got response == 200 building json ... {response} ')
+                logging.info(f'!?!?!?!? [llm_prompt] got response == 200 building json ...  {response} ')
+                res_json = response.json()        
+                print(f' !?!?!?!? [llm_prompt] GOT RES_JSON: llm_prompt GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+                logging.info(f'!?!?!?!? [llm_prompt] GOT RES_JSON: {res_json} ')          
+                return f'{res_json}'
+            else:
+                logging.exception(f'[llm_prompt] Request Error: {response}')
+                return f'Request Error: {response}'
+    
+        
+        if GLOBAL_SELECTED_PROMPT_IMAGE == 'xoo4foo/zvllm21:latest':
+            print(f' >>> llm_prompt GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+            print(f' >>> llm_prompt got params: {params} ')
+            logging.info(f'[llm_prompt] >> GLOBAL_SELECTED_MODEL_ID: {GLOBAL_SELECTED_MODEL_ID} ')
+            logging.info(f'[llm_prompt] >> got params: {params} ')
+
+            req_params = PromptComponents(*params)
+
+            DEFAULTS_PROMPT = {
+                "prompt_in": "Tell a joke",
+                "top_p": 0.95,
+                "temperature": 0.8,
+                "max_tokens": 150
+            }
+
+            response = requests.post(BACKEND_URL, json={
+                "req_method":"generate",
+                "prompt_in": getattr(req_params, "prompt_in", DEFAULTS_PROMPT["prompt_in"]),
+                "top_p":getattr(req_params, "top_p", DEFAULTS_PROMPT["top_p"]),
+                "temperature":getattr(req_params, "temperature", DEFAULTS_PROMPT["temperature"]),
+                "max_tokens":getattr(req_params, "max_tokens", DEFAULTS_PROMPT["max_tokens"])
+            }, timeout=REQUEST_TIMEOUT)
+
+            if response.status_code == 200:
+                print(f' !?!?!?!? [llm_prompt] got response == 200 building json ... {response} ')
+                logging.info(f'!?!?!?!? [llm_prompt] got response == 200 building json ...  {response} ')
+                res_json = response.json()        
+                print(f' !?!?!?!? [llm_prompt] GOT RES_JSON: llm_prompt GLOBAL_SELECTED_MODEL_ID: {res_json} ')
+                logging.info(f'!?!?!?!? [llm_prompt] GOT RES_JSON: {res_json} ')          
+                return f'{res_json}'
+            else:
+                logging.exception(f'[llm_prompt] Request Error: {response}')
+                return f'Request Error: {response}'
     
     except Exception as e:
         logging.exception(f'Exception occured: {e}', exc_info=True)
@@ -1499,7 +1555,7 @@ def create_app():
                 with gr.Row() as vllm_prompt_output:
                     output_prompt = gr.Textbox(label="Prompt Output", show_label=True)
                 with gr.Row() as vllm_prompt:
-                    prompt_btn = gr.Button("PROMPT")
+                    btn_prompt = gr.Button("PROMPT")
 
 
         gpu_dataframe = gr.Dataframe(label="GPU information")
@@ -1686,7 +1742,7 @@ def create_app():
 
 
         
-        prompt_btn.click(
+        btn_prompt.click(
             llm_prompt,
             llm_prompt_components.to_list(),
             [output_prompt]
@@ -1730,7 +1786,7 @@ def create_app():
 
         # load_btn.click(lambda model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in: vllm_api("load", model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in), inputs=[model_dropdown, selected_model_pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in], outputs=prompt_out)
             
-        # prompt_btn.click(lambda model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in: vllm_api("generate", model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in), inputs=[model_dropdown, selected_model_pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in], outputs=prompt_out)
+        # btn_prompt.click(lambda model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in: vllm_api("generate", model, pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in), inputs=[model_dropdown, selected_model_pipeline_tag, max_model_len, tensor_parallel_size, gpu_memory_utilization, top_p, temperature, max_tokens, prompt_in], outputs=prompt_out)
 
         
 
