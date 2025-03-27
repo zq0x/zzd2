@@ -1837,6 +1837,10 @@ def create_app():
             lambda: gr.update(visible=True), 
             None, 
             row_prompt
+        ).then(
+            refresh_container,
+            None,
+            [container_state]
         )
 
 
