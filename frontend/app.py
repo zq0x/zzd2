@@ -1394,7 +1394,7 @@ def create_app():
             model_dropdown = gr.Dropdown(choices=[''], interactive=True, show_label=False)
         with gr.Row(visible=False) as row_model_info:
             with gr.Column(scale=4):
-                with gr.Accordion(("Model Parameters"), open=True):                    
+                with gr.Accordion(("Model Parameters"), open=False):                    
                     with gr.Row():
                         selected_model_id = gr.Textbox(label="id")
                         selected_model_container_name = gr.Textbox(label="container_name")

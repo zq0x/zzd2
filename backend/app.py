@@ -5,20 +5,17 @@ import subprocess
 import docker
 from docker.types import DeviceRequest
 import time
-import numpy
 import os
 import requests
 import redis.asyncio as redis
 import sys
-import torch
 import asyncio
 from datetime import datetime
 from contextlib import asynccontextmanager
 import pynvml
 import psutil
 import logging
-import tensorflow as tf
-import gc
+
 
 DEFAULT_CONTAINER_STATS = {
     'name': '/error_container',
@@ -601,65 +598,6 @@ async def docker_rest(request: Request):
     try:
         req_data = await request.json()
                 
-        if req_data["req_method"] == "clearsmi":
-            print(f'got {req_data["req_method"]}!')
-            print("req_data")
-            print(req_data)
-            print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
-            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
-            try:
-                # Step 1: Clear PyTorch CUDA Cache
-                print("Clearing PyTorch CUDA Cache...")
-                gc.collect()  # Run garbage collector
-                torch.cuda.empty_cache()  # Clear cached memory
-
-                # Step 2: Terminate GPU processes
-                print("Terminating GPU-related processes...")
-                try:
-                    output = subprocess.check_output("nvidia-smi", shell=True, universal_newlines=True)
-                    # Parse and terminate processes using GPU
-                    for line in output.split("\n"):
-                        if "python" in line or "PID" in line:  # Look for relevant processes
-                            pid = line.split()[2]  # Assume PID is in the third column
-                            os.system(f"kill -9 {pid}")  # Kill the process
-                except Exception as e:
-                    print(f' ??????? 111 {req_data["req_method"]}  {e}')
-                    logging.info(f' ??????? 111 {req_data["req_method"]}  {e}')
-                    return JSONResponse({"result_status": 500, "result_data": f'{e}'})
-
-                # Step 3: Check GPU memory and status
-                print(f'Checking GPU memory status after cleanup...')
-                logging.info(f'Checking GPU memory status after cleanup...')
-                
-                print(f' ??????? 111 {os.system("nvidia-smi")} ')
-                logging.info(f' ??????? 111 {os.system("nvidia-smi")} ')
-                logging.info(f' ??????? 111 {os.system("nvidia-smi")} ')
-
-            except Exception as e:
-                print(f' ??????? 222 {req_data["req_method"]}  {e}')
-                logging.info(f' ??????? 222 {req_data["req_method"]}  {e}')
-                return JSONResponse({"result_status": 500, "result_data": f'{e}'})
-                
-        if req_data["req_method"] == "cleartorch":
-            print(f'got {req_data["req_method"]}!')
-            print("req_data")
-            print(req_data)
-            print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
-            logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] t{req_data["req_method"]} >>>>>>>>>>>')
-
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-                torch.cuda.reset_peak_memory_stats()
-                torch.cuda.synchronize()
-                
-                print(f' ??????? {req_data["req_method"]}  torch.cuda.SUCCESS')
-                logging.info(f' ??????? {req_data["req_method"]}  torch.cuda.SUCCESS')
-                return JSONResponse({"result_status": 200, "result_data": f'cache emptied {req_data["req_method"]} success!'})
-          
-            else:
-                print(f' ??????? {req_data["req_method"]}  torch.cuda.is_available(): NOT AVAILABLEEE')
-                logging.info(f' ??????? {req_data["req_method"]}  torch.cuda.is_available(): NOT AVAILABLEEE')
-                return JSONResponse({"result_status": 500, "result_data": f'torch.cuda.is_available(): NOT AVAILABLEE'})
 
                          
         if req_data["req_method"] == "test":
@@ -766,9 +704,9 @@ async def docker_rest(request: Request):
                 if res_db_gpu is not None:
                     db_gpu = json.loads(res_db_gpu)                    
 
-                    print(f'trying to reset memory ...')
-                    torch.cuda.empty_cache()
-                    torch.cuda.reset_max_memory_allocated()
+                    print(f'SHOULD RESET MEMORY BUT DOESNT DO YEt -> req 1370 clear or in load direct')
+                    # torch.cuda.empty_cache()
+                    # torch.cuda.reset_max_memory_allocated()
                     
                     
                     

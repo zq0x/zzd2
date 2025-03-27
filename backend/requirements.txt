@@ -4,6 +4,3 @@ docker
 redis
 pynvml
 psutil
-numpy
-torch
-tensorflow
