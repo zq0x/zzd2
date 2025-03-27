@@ -748,36 +748,74 @@ async def docker_rest(request: Request):
                 # print(f'all vLLM containers stopped successfully') 
                                
                                
-                               
-                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>>')
-                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> ')
-
-                res_container = client.containers.run(
-                    req_data["image"],
-                    command=f'--model {req_data["model_id"]} --tensor-parallel-size {req_data["tensor_parallel_size"]}',
-                    name=container_name,
-                    runtime=req_data["runtime"],
-                    volumes={"/home/cloud/.cache/huggingface": {"bind": "/root/.cache/huggingface", "mode": "rw"}},
-                    ports={
-                        f'{req_data["port_vllm"]}/tcp': ("0.0.0.0", req_data["port_model"])
-                    },
-                    ipc_mode="host",
-                    device_requests=[device_request],
-                    detach=True
-                )
                 
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>>')
                 logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> ')
 
+                if req_data["image"] == "xoo4foo/zvllm21:latest":
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] Starting vLLM container with image: xoo4foo/zvllm21:latest')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] Starting vLLM container with image: xoo4foo/zvllm21:latest')
+                    
+                    res_container = client.containers.run(
+                        "xoo4foo/zvllm21:latest",
+                        command=f'--model {req_data["model_id"]} --tensor-parallel-size {req_data["tensor_parallel_size"]}',
+                        name="container_vllm",
+                        runtime="nvidia",
+                        volumes={
+                            "/models": {"bind": "/models", "mode": "rw"},
+                            "../logs": {"bind": "/var/log", "mode": "rw"}
+                        },
+                        ports={"1370/tcp": ("0.0.0.0", 1370)},
+                        shm_size="8gb",
+                        environment={
+                            "NCCL_DEBUG": "INFO",
+                            "VLLM_PORT": "1370"
+                        },
+                        device_requests=[
+                            docker.types.DeviceRequest(
+                                count=-1,  # all devices
+                                capabilities=[['gpu']]
+                            )
+                        ],
+                        detach=True
+                    )
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] vLLM container started successfully with ID: {res_container.id}')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] vLLM container started successfully with ID: {res_container.id}')
                 
-                container_id = res_container.id
+                if req_data["image"] == "vllm/vllm-openai:latest":
+                    res_container = client.containers.run(
+                        req_data["image"],
+                        command=f'--model {req_data["model_id"]} --tensor-parallel-size {req_data["tensor_parallel_size"]}',
+                        name=container_name,
+                        runtime=req_data["runtime"],
+                        volumes={
+                            "/models": {
+                                "bind": "/models",
+                                "mode": "rw"
+                            }
+                        },
+                        ports={
+                            f'{req_data["port_vllm"]}/tcp': ("0.0.0.0", req_data["port_model"])
+                        },
+                        ipc_mode="host",
+                        device_requests=[device_request],
+                        detach=True
+                    )
+                
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>> {res_container}')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> {res_container}')
+                                
+                # print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9 >>>>>>>>>>> {res_container.id}')
+                # logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> {res_container.id}')
+                
+                # container_id = res_container.id
                 
                 
                 
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 10 >>>>>>>>>>>')
                 logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 10  >>>>>>>>>>> ')
 
-                return JSONResponse({"result_status": 200, "result_data": str(container_id)})
+                return JSONResponse({"result_status": 200, "result_data": 'whatever'})
 
             except Exception as e:
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
