@@ -597,7 +597,13 @@ async def root():
 async def docker_rest(request: Request):
     try:
         req_data = await request.json()
-                
+        print(f' *** got request!')
+        print(f' *** req_data')
+        print(f' *** {req_data}')
+
+        logging.info(f' *** got request!')
+        logging.info(f' *** req_data')
+        logging.info(f' *** {req_data}')
 
                          
         if req_data["req_method"] == "test":
@@ -698,7 +704,11 @@ async def docker_rest(request: Request):
 
         if req_data["req_method"] == "create":
             try:
-                container_name = str(req_data["req_model"]).replace('/', '_')
+                print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>>')
+                logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] generate >>>>>>>>>>> ')
+                
+                
+                container_name = str(req_data["model_id"]).replace('/', '_')
                 container_name = f'vllm_{container_name}'
                 res_db_gpu = await r.get('db_gpu')
                 if res_db_gpu is not None:
@@ -713,7 +723,7 @@ async def docker_rest(request: Request):
                     # # check if model already downloaded/downloading
                     # all_used_models = [g["used_models"] for g in db_gpu]
                     # print(f'all_used_models {all_used_models}')
-                    # if req_data["req_model"] in all_used_models:
+                    # if req_data["model_id"] in all_used_models:
                     #     return JSONResponse({"result": 302, "result_data": "Model already downloaded. Trying to start container ..."})
                     
                     # # check if ports already used
@@ -728,7 +738,7 @@ async def docker_rest(request: Request):
                     #     all_running_models = [g["running_model"] for g in db_gpu]
                     #     print(f'all_running_models {all_running_models}')
                     #     for running_model in all_running_models:
-                    #         req_container = client.containers.get(req_data["req_model"])
+                    #         req_container = client.containers.get(req_data["model_id"])
                     #         req_container.stop()
                         
                     # # wait for containers to stop
@@ -768,7 +778,7 @@ async def docker_rest(request: Request):
                         "port_vllm": str(req_data["req_port_vllm"]),
                         "port_model": str(req_data["req_port_model"]),
                         "used_ports": f'{str(req_data["req_port_vllm"])},{str(req_data["req_port_model"])}',
-                        "used_models": str(str(req_data["req_model"]))
+                        "used_models": str(str(req_data["model_id"]))
                     }
                     await r.set('db_gpu', json.dumps(add_data))
                         
@@ -797,7 +807,7 @@ async def docker_rest(request: Request):
                                 
                 res_container = client.containers.run(
                     "vllm/vllm-openai:latest",
-                    command=f'--model {req_data["req_model"]} --tensor-parallel-size 1',
+                    command=f'--model {req_data["model_id"]} --tensor-parallel-size 1',
                     name=container_name,
                     runtime=req_data["req_runtime"],
                     volumes={"/home/cloud/.cache/huggingface": {"bind": "/root/.cache/huggingface", "mode": "rw"}},
@@ -813,7 +823,7 @@ async def docker_rest(request: Request):
 
             except Exception as e:
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
-                r.delete(f'running_model:{str(req_data["req_model"])}')
+                r.delete(f'running_model:{str(req_data["model_id"])}')
                 return JSONResponse({"result_status": 404, "result_data": f'{req_data["max_model_len"]}'})
 
     except Exception as e:

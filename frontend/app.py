@@ -1164,13 +1164,14 @@ def llm_create(*params):
                 
         req_params = VllmCreateValues(*params)
 
-
         response = requests.post(BACKEND_URL, json={
             "req_method":"create",
             "model_id":GLOBAL_SELECTED_MODEL_ID,
-            "max_model_len":req_params.max_model_len,
-            "tensor_parallel_size":req_params.tensor_parallel_size,
-            "gpu_memory_utilization":req_params.gpu_memory_utilization
+            "max_model_len":req_params.create_max_model_len,
+            "tensor_parallel_size":req_params.create_tensor_parallel_size,
+            "gpu_memory_utilization":req_params.create_gpu_memory_utilization,
+            "req_port_vllm":8000,
+            "req_port_model":8001
         }, timeout=REQUEST_TIMEOUT)
 
         if response.status_code == 200:
