@@ -834,7 +834,7 @@ async def docker_rest(request: Request):
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 10 >>>>>>>>>>>')
                 logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 10  >>>>>>>>>>> ')
 
-                return JSONResponse({"result_status": 200, "result_data": 'whatever'})
+                return JSONResponse({"result_status": 200, "result_data": res_container.id})
 
             except Exception as e:
                 print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {e}')
