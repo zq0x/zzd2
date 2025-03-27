@@ -753,13 +753,18 @@ async def docker_rest(request: Request):
                 logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> ')
 
                 if req_data["image"] == "xoo4foo/zvllm21:latest":
-                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] Starting vLLM container with image: xoo4foo/zvllm21:latest')
-                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] Starting vLLM container with image: xoo4foo/zvllm21:latest')
+                                        
+                    # if container_name in REDIS DB LISTE ODER QUERY 'list' AM BESTEN MIT self. 
+                    container_name = f'{container_name}_{str(int(datetime.now().timestamp()))}'
+                    
+                    print(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] Starting vLLM container with image: xoo4foo/zvllm21:latest container_name: {container_name}')
+                    logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] Starting vLLM container with image: xoo4foo/zvllm21:latest container_name: {container_name}')
+
                     
                     res_container = client.containers.run(
                         "xoo4foo/zvllm21:latest",
                         command=f'--model {req_data["model_id"]} --tensor-parallel-size {req_data["tensor_parallel_size"]}',
-                        name="container_vllm",
+                        name="container_name",
                         runtime="nvidia",
                         volumes={
                             "/models": {"bind": "/models", "mode": "rw"},
@@ -783,6 +788,10 @@ async def docker_rest(request: Request):
                     logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [CONTAINER] vLLM container started successfully with ID: {res_container.id}')
                 
                 if req_data["image"] == "vllm/vllm-openai:latest":
+                    
+                    # if container_name in REDIS DB LISTE ODER QUERY 'list' AM BESTEN MIT self. 
+                    container_name = f'{container_name}_{str(int(datetime.now().timestamp()))}'
+                    
                     res_container = client.containers.run(
                         req_data["image"],
                         command=f'--model {req_data["model_id"]} --tensor-parallel-size {req_data["tensor_parallel_size"]}',

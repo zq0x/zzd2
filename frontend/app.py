@@ -1526,8 +1526,8 @@ def create_app():
                         max_model_len=gr.Slider(1024, 8192, step=1024, value=1024, label="max_model_len", info=f'Model context length. If unspecified, will be automatically derived from the model config.'),
                         tensor_parallel_size=gr.Number(1, 8, value=1, label="tensor_parallel_size", info=f'Number of tensor parallel replicas.'),
                         gpu_memory_utilization=gr.Slider(0.2, 0.99, value=0.87, label="gpu_memory_utilization", info=f'The fraction of GPU memory to be used for the model executor, which can range from 0 to 1.'),
-                        port_model=gr.Slider(1371, 1471, step=1, value=1371, label="port_model", info=f'CURLable Port.'),
-                        port_vllm=gr.Slider(1371, 1471, step=1, value=1371, label="port_vllm", info=f'vLLM Port')
+                        port_model=gr.Slider(1371, 1471, step=1, value=1371, label="port_model", info=f'Open CURLable Port.'),
+                        port_vllm=gr.Slider(1371, 1471, step=1, value=1371, label="port_vllm", info=f'Open vLLM Port')
                     )
                     
                     
