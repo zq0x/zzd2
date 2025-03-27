@@ -753,13 +753,13 @@ async def docker_rest(request: Request):
                 logging.info(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] [dockerrest] create 9  >>>>>>>>>>> ')
 
                 res_container = client.containers.run(
-                    "vllm/vllm-openai:latest",
-                    command=f'--model {req_data["model_id"]} --tensor-parallel-size 1',
+                    req_data["image"],
+                    command=f'--model {req_data["model_id"]} --tensor-parallel-size {req_data["tensor_parallel_size"]}',
                     name=container_name,
-                    runtime=req_data["req_runtime"],
+                    runtime=req_data["runtime"],
                     volumes={"/home/cloud/.cache/huggingface": {"bind": "/root/.cache/huggingface", "mode": "rw"}},
                     ports={
-                        f'{req_data["req_port_vllm"]}/tcp': ("0.0.0.0", req_data["req_port_model"])
+                        f'{req_data["port_vllm"]}/tcp': ("0.0.0.0", req_data["port_model"])
                     },
                     ipc_mode="host",
                     device_requests=[device_request],
